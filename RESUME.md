@@ -18,10 +18,12 @@ for Brett Lechtenberg, inspired by adandelacruz.com.
 - **Stack:** single-file `index.html` (Three.js r128 CDN, all CSS/JS inline),
   interior pages share `site.css`. No build step. Read README.md first.
 
-State (July 13, 2026): walk-through door cinematic (3 beats + creak + fade-to-black
+State (July 13, 2026, v1.1): walk-through door cinematic (3 beats + creak + fade-to-black
 threshold), DOOR 1–4 labels, idle door-crack animation, uniform-size door photos with
 distinct AI-edited outfits, "which Brett" quiz (lobby pill + dossier links), mid-screen
-pulsing hint, top-pinned dossiers with scroll cue, face favicon.
+pulsing hint, top-pinned dossiers with scroll cue, face favicon, full mobile support
+(portrait 2×2 door cards, short-landscape/in-app browsers 4-across, `MQ_MOBILE`
+media query gates the 3D path; renderer paused on mobile).
 
 Outstanding / next candidates:
 1. `{key}-hero.jpg` dossier backdrops still show Brett's OLD blue-tee outfit —
@@ -29,6 +31,8 @@ Outstanding / next candidates:
 2. `{key}-idle.mp4` / `{key}-beat.mp4` clone videos not shot yet (specs in README).
 3. Watch quiz-pill pulse annoyance; consider capping at 3 cycles.
 4. Tester feedback loop on door affordance (hint + breathing glow + enter chip).
+5. If mobile users report a black screen anyway: likely WebGL blocked — mobile path
+   is DOM-only so should be immune, but check the in-app browser involved.
 
 Rules: keep edits small, screenshot-verify, commit+push after each accepted change,
 never touch the main brettlechtenberg.com site.

@@ -21,7 +21,7 @@ Debug: `?go=1`..`?go=4` auto-opens a dossier · `?peek=1`..`?peek=4` freezes a d
 Pages: `index.html` (lobby) · `about.html` · `speaking.html` · `training.html` · `books.html` · `contact.html`
 (interior pages share `site.css`; all copy is REAL, pulled from brettlechtenberg.com).
 
-## Current feature set (July 2026)
+## Current feature set (July 2026, v1.1)
 
 - **3D lobby** (Three.js r128 CDN): background plate, 4 hinged glass doors labeled
   DOOR 1–4, idle bob, breathing frame glow, occasional idle "door crack" with light sliver
@@ -36,7 +36,10 @@ Pages: `index.html` (lobby) · `about.html` · `speaking.html` · `training.html
 - **Hint pill** mid-screen: "← click a door to step inside →", pulses, gone after first click
 - **Face favicon** (circular headshot, gold ring): `favicon.ico` + `assets/favicon-*.png`, all pages
 - **Sound**: WebAudio blips + hinge creak; ambient music with pause toggle
-- Mobile portrait shows a rotate-your-device gate
+- **Mobile**: portrait phones get a 2×2 tappable door-card lobby; short-landscape
+  viewports (Messenger/Instagram in-app browsers) get the same cards 4-across;
+  dossier + quiz fully responsive; 3D renderer paused on mobile (battery).
+  Desktop/tablet landscape gets the full 3D lobby. No rotate gate — removed.
 
 ## The four personas (edit in `index.html` → `CLASSES` array)
 
