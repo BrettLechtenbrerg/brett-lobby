@@ -391,6 +391,9 @@ function placeholderTexture(cls, idx) {
 const hitQuads = [];
 const paneMats = [];
 const paneGroups = [];
+const doorPivots = [];   // hinged glass panes
+const gapMats = [];      // glow planes behind each door
+const doorOpen = [0, 0, 0, 0]; // target swing per door (radians)
 
 CLASSES.forEach((cls, i) => {
   const group = new THREE.Group();
@@ -405,11 +408,28 @@ CLASSES.forEach((cls, i) => {
   frame.position.z = -0.01;
   group.add(frame);
 
-  // inner pane — transparent placeholder now, video texture when assets/{key}-idle.mp4 exists
-  const mat = new THREE.MeshBasicMaterial({ map: placeholderTexture(cls, i), transparent: true });
+  // inner pane — hinged on its outer edge so it can swing open like a door.
+  // Outer panes (0,3) hinge outward; inner panes (1,2) hinge on their outer side too.
+  const hingeSide = i < 2 ? -1 : 1; // hinge x offset direction
+  const doorPivot = new THREE.Group();
+  doorPivot.position.x = hingeSide * (PANE_W / 2);
+  const mat = new THREE.MeshBasicMaterial({ map: placeholderTexture(cls, i), transparent: true, side: THREE.DoubleSide });
   const pane = new THREE.Mesh(new THREE.PlaneGeometry(PANE_W, PANE_H), mat);
-  group.add(pane);
+  pane.position.x = -hingeSide * (PANE_W / 2);
+  doorPivot.add(pane);
+  group.add(doorPivot);
+  doorPivots.push({ pivot: doorPivot, dir: hingeSide });
   paneMats.push({ mat, frameMat });
+
+  // doorway glow revealed behind the swinging pane
+  const gapMat = new THREE.MeshBasicMaterial({
+    color: new THREE.Color(cls.accent), transparent: true, opacity: 0,
+    blending: THREE.AdditiveBlending, depthWrite: false,
+  });
+  const gap = new THREE.Mesh(new THREE.PlaneGeometry(PANE_W, PANE_H), gapMat);
+  gap.position.z = -0.02;
+  group.add(gap);
+  gapMats.push(gapMat);
 
   // invisible hit quad (slightly larger for fat fingers)
   const hit = new THREE.Mesh(
@@ -543,9 +563,19 @@ function select(i) {
   plateEl.classList.remove('show');
   const cls = CLASSES[i];
   document.documentElement.style.setProperty('--accent', cls.accent);
-  camTarget = new THREE.Vector3(PANE_X[i], PANE_Y + 0.4, 3.2);
+  // phase 1 — walk up to the door
+  camTarget = new THREE.Vector3(PANE_X[i], PANE_Y + 0.4, 3.0);
   lookTarget = new THREE.Vector3(PANE_X[i], PANE_Y + 0.4, 0);
-  setTimeout(() => document.getElementById('flare').classList.add('on'), 520);
+  // phase 2 — the door swings open, light spills out
+  setTimeout(() => {
+    doorOpen[i] = doorPivots[i].dir * -1.45; // ~83° swing on its hinge
+    Sound.door();
+  }, 450);
+  // phase 3 — step through the open doorway
+  setTimeout(() => {
+    camTarget = new THREE.Vector3(PANE_X[i], PANE_Y + 0.4, 0.55);
+  }, 900);
+  setTimeout(() => document.getElementById('flare').classList.add('on'), 1250);
   setTimeout(() => {
     const d = document.getElementById('dossier');
     const hero = d.querySelector('.d-hero');
@@ -575,7 +605,7 @@ function select(i) {
     descendTimer = setTimeout(() => {
       document.getElementById('dossier').scrollTo({ top: innerHeight * 0.92, behavior: 'smooth' });
     }, 6500);
-  }, 950);
+  }, 1650);
 }
 
 function back() {
@@ -589,6 +619,7 @@ function back() {
   document.body.classList.remove('in-dossier');
   document.getElementById('d-back').style.display = 'none';
   setTimeout(() => d.classList.remove('visible'), 900);
+  doorOpen[selected] = 0; // close the door behind you
   selected = -1;
   camTarget = CAM_HOME.clone();
   lookTarget = new THREE.Vector3(0, 0, 0);
@@ -646,6 +677,7 @@ const Sound = (() => {
     hover: () => blip(660, 0.08, 0.025),
     select: () => blip(330, 0.5, 0.06),
     back: () => blip(220, 0.3, 0.05),
+    door: () => { blip(140, 0.9, 0.05); setTimeout(() => blip(520, 0.25, 0.03), 500); },
   };
 })();
 
@@ -655,11 +687,17 @@ function tick() {
   requestAnimationFrame(tick);
   const t = clock.getElapsedTime();
 
-  // idle bob + hover brightness
+  // idle bob + hover brightness + door swing
   paneGroups.forEach((g, i) => {
     g.position.y = PANE_Y + Math.sin(t * 0.8 + i * 1.7) * 0.015;
     const target = (i === hovered && selected === -1) ? 0.55 : 0.1;
     paneMats[i].frameMat.opacity += (target - paneMats[i].frameMat.opacity) * 0.1;
+    // swing the glass pane on its hinge (ease-out)
+    const pv = doorPivots[i].pivot;
+    pv.rotation.y += (doorOpen[i] - pv.rotation.y) * 0.07;
+    // light spills through the opening doorway
+    const openness = Math.abs(pv.rotation.y) / 1.45;
+    gapMats[i].opacity += (openness * 0.55 - gapMats[i].opacity) * 0.1;
   });
 
   // camera lerp
