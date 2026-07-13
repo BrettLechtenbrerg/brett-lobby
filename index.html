@@ -516,8 +516,8 @@ function placeholderTexture(cls, idx) {
   // labels
   g.textAlign = 'center';
   g.fillStyle = `rgba(${cls.auraRGB}, 0.95)`;
-  g.font = '600 46px "DM Sans", sans-serif';
-  g.fillText(`0${idx + 1}`, cx, y(0.09));
+  g.font = '600 40px "DM Sans", sans-serif';
+  g.fillText(`DOOR ${idx + 1}`, cx, y(0.09));
   g.fillStyle = 'rgba(237, 233, 225, 0.9)';
   g.font = '500 34px "DM Mono", monospace';
   const words = cls.name.replace('The ', '').split(' ');
@@ -624,8 +624,8 @@ CLASSES.forEach((cls, i) => {
     g.fillStyle = sc; g.fillRect(0, H * 0.84, W, H * 0.16);
     g.textAlign = 'center';
     g.fillStyle = `rgba(${cls.auraRGB}, 0.95)`;
-    g.font = '600 46px "DM Sans", sans-serif';
-    g.fillText(`0${i + 1}`, W / 2, H * 0.06);
+    g.font = '600 40px "DM Sans", sans-serif';
+    g.fillText(`DOOR ${i + 1}`, W / 2, H * 0.06);
     g.fillStyle = 'rgba(237,233,225,0.9)';
     g.font = '500 34px "DM Mono", monospace';
     cls.name.replace('The ', '').split(' ').forEach((w, k) =>
@@ -661,7 +661,7 @@ const plateEl = document.getElementById('plate');
 function showPlate(i) {
   const c = CLASSES[i];
   document.documentElement.style.setProperty('--accent', c.accent);
-  document.getElementById('p-eyebrow').textContent = `// 0${i + 1}`;
+  document.getElementById('p-eyebrow').textContent = `// door ${i + 1}`;
   document.getElementById('p-class').textContent = c.name;
   document.getElementById('p-power').textContent = c.power;
   document.getElementById('p-stats').innerHTML =
@@ -882,7 +882,7 @@ function select(i) {
     dVideo.src = `assets/${cls.key}-beat.mp4`;
     dVideo.poster = `assets/${cls.key}-hero.jpg`;
     dVideo.loop = false;
-    document.getElementById('d-eyebrow').textContent = `// 0${i + 1} — dossier`;
+    document.getElementById('d-eyebrow').textContent = `// door ${i + 1} — dossier`;
     document.getElementById('d-class').textContent = cls.reveal || cls.name;
     document.getElementById('d-line').textContent = cls.line;
     document.getElementById('d-about-h').textContent = cls.aboutH;
@@ -1005,6 +1005,14 @@ function tick() {
     const breathe = 0.18 + Math.sin(t * 1.6 + i * 0.9) * 0.12; // 0.06→0.30 slow pulse
     const target = (i === hovered && selected === -1) ? 0.7 : breathe;
     paneMats[i].frameMat.opacity += (target - paneMats[i].frameMat.opacity) * 0.1;
+    // idle door cracks: each door occasionally drifts open a few degrees and eases shut,
+    // a sliver of accent light escaping — hints that the doors really open
+    if (selected === -1 && !cine && tweens.length === 0) {
+      let v = Math.max(0, Math.sin(t * 0.37 + i * 1.9) - 0.72) / 0.28; // brief pulses
+      v = v * v * (3 - 2 * v); // smoothstep
+      doorPivots[i].pivot.rotation.y = doorPivots[i].dir * 0.24 * v;   // up to ~14°
+      gapMats[i].opacity = v * 0.22;
+    }
   });
 
   // cinematic tweens own the camera during the walk-through
