@@ -697,13 +697,21 @@ function showQuizResult() {
   document.getElementById('qr-name').textContent = cls.name;
   document.getElementById('qr-line').textContent = cls.line;
   document.getElementById('qr-go').onclick = () => { closeQuiz(); select(winner); };
+  document.getElementById('qr-again').onclick = () => {
+    document.documentElement.style.setProperty('--accent', '#D4AF37');
+    qIdx = 0; qScores = [0, 0, 0, 0];
+    renderQuiz();
+  };
 }
 function openQuiz() {
   qIdx = 0; qScores = [0, 0, 0, 0];
   renderQuiz();
   quizEl.classList.add('open');
 }
-function closeQuiz() { quizEl.classList.remove('open'); }
+function closeQuiz() {
+  quizEl.classList.remove('open');
+  if (selected === -1) document.documentElement.style.setProperty('--accent', '#D4AF37'); // restore brand gold unless entering a door
+}
 document.getElementById('quiz-pill').addEventListener('click', openQuiz);
 document.querySelector('.q-close').addEventListener('click', closeQuiz);
 quizEl.addEventListener('click', e => { if (e.target === quizEl) closeQuiz(); });
