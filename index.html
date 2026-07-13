@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Brett Lechtenberg | Choose Who You Need</title>
+<meta name="description" content="Peak performance coach, keynote speaker, author, and martial arts master. Four ways to work with Brett Lechtenberg — pick the one you need.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --accent: #D4AF37;
+  --bg: #070607;
+  --text: #EDE9E1;
+  --dim: #9A948A;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { height: 100%; background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; overflow: hidden; }
+canvas { display: block; }
+body.in-dossier { overflow: hidden; }
+
+/* ---------- HUD ---------- */
+#hud-top {
+  position: fixed; top: 22px; left: 26px; z-index: 20;
+  font-family: 'DM Mono', monospace; font-size: 12px; letter-spacing: 0.08em; color: var(--accent);
+  opacity: 0.85; pointer-events: none;
+}
+#title {
+  position: fixed; top: 34px; left: 50%; transform: translateX(-50%); z-index: 20;
+  text-align: center; pointer-events: none;
+}
+#title h1 { font-family: 'Cormorant Garamond', serif; font-weight: 500; font-size: clamp(26px, 3.4vw, 44px); letter-spacing: 0.01em; }
+#title p { margin-top: 8px; font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 0.32em; text-transform: uppercase; color: var(--dim); }
+
+#bottom-bar {
+  position: fixed; bottom: 26px; left: 50%; transform: translateX(-50%); z-index: 20;
+  display: flex; align-items: center; gap: 26px;
+  background: rgba(10, 8, 8, 0.55); border: 1px solid rgba(237, 233, 225, 0.09);
+  border-radius: 40px; padding: 13px 30px; backdrop-filter: blur(12px);
+}
+#bottom-bar a {
+  color: var(--dim); text-decoration: none; font-family: 'DM Mono', monospace;
+  font-size: 12px; letter-spacing: 0.22em; text-transform: uppercase; transition: color 0.25s;
+}
+#bottom-bar a:hover { color: var(--text); }
+#bottom-bar .sep { width: 1px; height: 18px; background: rgba(237, 233, 225, 0.12); }
+#music-toggle {
+  border: 1px solid rgba(237, 233, 225, 0.14); background: rgba(237, 233, 225, 0.05);
+  color: var(--dim); border-radius: 20px; padding: 7px 16px; cursor: pointer;
+  font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 0.14em; transition: color 0.25s;
+}
+#music-toggle:hover { color: var(--text); }
+.mt-glyph { font-size: 9px; margin-right: 4px; }
+
+/* ---------- hover plate ---------- */
+#plate {
+  position: fixed; left: 34px; bottom: 100px; z-index: 20; max-width: 380px;
+  opacity: 0; transform: translateY(14px); transition: opacity 0.35s, transform 0.35s;
+  pointer-events: none;
+}
+#plate.show { opacity: 1; transform: translateY(0); }
+#p-eyebrow { font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 0.2em; color: var(--accent); }
+#p-class { font-family: 'Cormorant Garamond', serif; font-size: 38px; font-weight: 500; margin-top: 6px; }
+#p-power { margin-top: 10px; font-size: 14px; line-height: 1.55; color: var(--dim); }
+#p-stats { margin-top: 14px; display: flex; flex-direction: column; gap: 5px; }
+.p-stat { font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 0.06em; color: var(--accent); opacity: 0.85; }
+
+/* ---------- lens flare ---------- */
+#flare {
+  position: fixed; inset: 0; z-index: 40; background: #fff; opacity: 0; pointer-events: none;
+  transition: opacity 0.45s;
+}
+#flare.on { opacity: 0.92; }
+
+/* ---------- dossier ---------- */
+#dossier {
+  position: fixed; inset: 0; z-index: 30; display: none;
+  overflow-y: auto; overscroll-behavior: contain;
+  background: var(--bg);
+  opacity: 0; transition: opacity 0.7s;
+}
+#dossier.visible { display: block; }
+#dossier.shown { opacity: 1; }
+.d-hero {
+  position: relative; height: 100vh;
+  background:
+    radial-gradient(ellipse 80% 60% at 50% 30%, color-mix(in srgb, var(--accent) 18%, transparent), transparent 70%),
+    var(--bg);
+}
+.d-hero video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.d-hero .d-grad {
+  position: absolute; inset: 0;
+  background: linear-gradient(to bottom, rgba(7,6,7,0.15) 0%, rgba(7,6,7,0) 40%, rgba(7,6,7,0.92) 96%);
+}
+.d-hero-text { position: absolute; bottom: 54px; left: 6vw; right: 6vw; }
+#d-eyebrow { font-family: 'DM Mono', monospace; font-size: 12px; letter-spacing: 0.24em; color: var(--accent); }
+#d-class { font-family: 'Cormorant Garamond', serif; font-size: clamp(44px, 6.4vw, 92px); font-weight: 500; line-height: 1.02; margin-top: 10px; }
+#d-line { margin-top: 14px; font-size: 16px; color: var(--dim); }
+.d-body { max-width: 860px; margin: 0 auto; padding: 90px 6vw 140px; }
+#d-about-h { font-family: 'Cormorant Garamond', serif; font-size: clamp(28px, 3.4vw, 44px); font-weight: 500; }
+#d-about { margin-top: 22px; font-size: 16.5px; line-height: 1.8; color: #C9C4BA; }
+#d-stats { margin-top: 48px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+#d-stats .s { border: 1px solid rgba(237, 233, 225, 0.1); border-radius: 10px; padding: 20px 18px; }
+#d-stats .s b { display: block; font-family: 'Cormorant Garamond', serif; font-size: 30px; font-weight: 500; color: var(--accent); }
+#d-stats .s span { display: block; margin-top: 6px; font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--dim); }
+.d-engage-wrap { margin-top: 64px; border-left: 2px solid var(--accent); padding-left: 26px; }
+.d-engage-label { font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 0.24em; text-transform: uppercase; color: var(--accent); }
+#d-engage { margin-top: 12px; font-size: 17px; line-height: 1.7; }
+.d-cta { margin-top: 40px; display: inline-block; text-decoration: none; color: var(--bg); background: var(--accent); font-weight: 700; font-size: 14px; letter-spacing: 0.06em; padding: 15px 34px; border-radius: 40px; }
+#d-back {
+  position: fixed; top: 24px; left: 26px; z-index: 45; display: none;
+  border: 1px solid rgba(237, 233, 225, 0.18); background: rgba(10, 8, 8, 0.6);
+  color: var(--text); border-radius: 30px; padding: 10px 22px; cursor: pointer;
+  font-family: 'DM Mono', monospace; font-size: 12px; letter-spacing: 0.14em; backdrop-filter: blur(10px);
+}
+#d-back:hover { border-color: var(--accent); color: var(--accent); }
+
+/* ---------- portrait gate ---------- */
+#rotate-gate {
+  position: fixed; inset: 0; z-index: 100; display: none;
+  background: var(--bg); text-align: center;
+  flex-direction: column; align-items: center; justify-content: center; gap: 16px; padding: 30px;
+}
+#rotate-gate h2 { font-family: 'Cormorant Garamond', serif; font-weight: 500; font-size: 30px; }
+#rotate-gate p { color: var(--dim); font-size: 14px; max-width: 320px; line-height: 1.6; }
+@media (orientation: portrait) and (max-width: 820px) {
+  #rotate-gate { display: flex; }
+}
+</style>
+</head>
+<body>
+
+<div id="hud-top">// brettlechtenberg.com</div>
+<div id="title">
+  <h1>Choose who you need.</h1>
+  <p>Four versions &nbsp;&middot;&nbsp; One Brett</p>
+</div>
+
+<div id="plate">
+  <div id="p-eyebrow"></div>
+  <div id="p-class"></div>
+  <div id="p-power"></div>
+  <div id="p-stats"></div>
+</div>
+
+<div id="bottom-bar">
+  <a href="about.html">About</a>
+  <a href="speaking.html">Speaking</a>
+  <a href="books.html">Books</a>
+  <a href="contact.html">Contact</a>
+  <div class="sep"></div>
+  <button id="music-toggle"></button>
+</div>
+
+<div id="flare"></div>
+
+<div id="dossier">
+  <div class="d-hero">
+    <video id="d-video" muted playsinline preload="auto"></video>
+    <div class="d-grad"></div>
+    <div class="d-hero-text">
+      <div id="d-eyebrow"></div>
+      <div id="d-class"></div>
+      <div id="d-line"></div>
+    </div>
+  </div>
+  <div class="d-body">
+    <div id="d-about-h"></div>
+    <div id="d-about"></div>
+    <div id="d-stats"></div>
+    <div class="d-engage-wrap">
+      <div class="d-engage-label">How to engage</div>
+      <div id="d-engage"></div>
+    </div>
+    <a class="d-cta" href="contact.html">Start the conversation &rarr;</a>
+  </div>
+</div>
+<button id="d-back">&larr; back to the lobby</button>
+
+<div id="rotate-gate">
+  <h2>Rotate your device</h2>
+  <p>The lobby is a widescreen experience. Turn your phone sideways to choose who you need.</p>
+</div>
+
+<audio id="bgm" src="assets/ambient-music.mp3" loop preload="auto"></audio>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+/* =========================================================
+   BRETT LECHTENBERG — THE LOBBY
+   Character-select home screen. Four personas, one operator.
+   All copy is placeholder — edit the CLASSES array freely.
+   ========================================================= */
+const CLASSES = [
+  { key: 'speaker', name: 'The Keynote Speaker', accent: '#D4AF37', auraRGB: '212,175,55',
+    power: 'Your audience leaves changed — not just entertained.',
+    line: 'Keynotes, corporate training, and workshops.',
+    aboutH: 'Transformation over transaction.',
+    about: 'Science-backed keynotes built on the Master\'s Edge methodology — First Principles to clarify, Frontloading to simplify, and Flow to maximize — tailored to your room, your industry, and your outcomes. Four lanes: Peak Performance & Mindset, Leadership & Team Culture, Sales & Ethical Influence, and AI for Humans. From Fortune 500 teams like American Express and Delta to chambers of commerce and championship locker rooms, Brett delivers transformation that outlasts the event. His rule: "Hacks are for hacks."',
+    stats: [['4 Lanes', 'one methodology'], ['Fortune 500', 'AmEx · Delta · Citigroup'], ['60–90 min', 'keynote to full-day']],
+    engage: 'Booking keynotes, corporate trainings, and workshops. If your event needs energy AND substance — with tools your people use Monday morning — this is the room.' },
+  { key: 'coach', name: 'The Performance Coach', accent: '#C21E56', auraRGB: '194,30,86',
+    power: 'Finds the gap between where you are and who you could be.',
+    line: 'The Master\'s Edge — Clarify. Simplify. Maximize.',
+    aboutH: 'A proven system for peak performance.',
+    about: 'The Master\'s Edge is Brett\'s proprietary coaching methodology — built on 30+ years of real-world business ownership, original flow state research reviewed and validated by the Flow Research Collective, and the same progressive mastery framework that creates black belts. Three pillars: Mindset Mastery, Skillset Enhancement, and the Support Structure that sustains peak performance over time. He only teaches what he\'s tested in his own business. That\'s the difference.',
+    stats: [['30+', 'years in business'], ['Flow Research', 'validated by the Flow Research Collective'], ['3 Pillars', 'mindset · skillset · support']],
+    engage: 'Taking a limited number of private coaching clients — leaders, teams, and business owners ready to operate differently. No pitch. No pressure. Bring a real goal.' },
+  { key: 'author', name: 'The Author', accent: '#3FA7D6', auraRGB: '63,167,214',
+    power: 'Teaches what he\'s tested. Writes what he\'s lived.',
+    line: 'Seven books. Five bestsellers.',
+    aboutH: 'Ideas that have helped thousands.',
+    about: 'Seven books, five bestsellers — including three #1 Amazon bestsellers. Reclaiming The Clock on time and focus; The Anti-Bully Program and The Anti-Cyber Bully Program, nationally recognized and featured in USA Today; The Ultimate Travel Safety Program; Protecting Your Castle; and Bullyproof. The seventh — The Master\'s Edge, the definitive guide to his peak performance methodology — is forthcoming. As seen on Good Things Utah, Channel 4, Channel 13, and The Daily Dish.',
+    stats: [['7 Books', '5 bestsellers'], ['#1 Amazon', 'three times'], ['USA Today', 'national coverage']],
+    engage: 'Media appearances, podcast interviews, and bulk orders for teams. Start with the free one — How to Build a Rockstar Team. The books are the door; walk through it.' },
+  { key: 'sensei', name: '???', accent: '#9AA5A0', auraRGB: '150,160,155',
+    power: '█████████████',
+    line: 'Some masters never take the spotlight.',
+    aboutH: 'Forty years on the mat.',
+    about: 'The hidden fourth version: 8th-degree black belt, 40+ years in martial arts, founder of Personal Mastery Martial Arts & Family Success Center in Sandy, Utah — his laboratory for three decades, where every strategy was tested before it was ever taught. Thousands of students transformed, one lesson underneath them all: the kicks and punches were never the point. They were the delivery system for self-belief. This is where the Master\'s Edge was forged.',
+    stats: [['8th Degree', 'black belt'], ['40+ Years', 'martial arts'], ['1000s', 'students transformed']],
+    engage: 'If you know, you know. The mat teaches what the boardroom can\'t — discipline, patience, and the long game of mastery. Ask about it in person.',
+    reveal: 'The Sensei' },
+];
+
+/* ---------- scene constants ---------- */
+// Panel UVs measured from assets/lobby.jpg glass doors (brightness-run detection)
+const PLANE_W = 16, PLANE_H = 10;
+const PANEL_U = [0.098, 0.184, 0.817, 0.906];   // horizontal centers
+const PANEL_V0 = 0.19, PANEL_V1 = 0.68;          // vertical glass extent
+const PANE_W = 1.15;                             // uniform character box (fits inside each door)
+const PANE_H = (PANEL_V1 - PANEL_V0) * PLANE_H;
+const PANE_X = PANEL_U.map(u => (u - 0.5) * PLANE_W);
+const PANE_Y = (0.5 - (PANEL_V0 + PANEL_V1) / 2) * PLANE_H;
+
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(45, innerWidth / innerHeight, 0.1, 100);
+// fit: fill height normally, pull back on narrow windows so all four doors stay visible
+function homeZ() {
+  const t = Math.tan(THREE.MathUtils.degToRad(22.5));
+  const hFit = (PLANE_H / 2) / t;
+  const wFit = (PLANE_W / 2) / (t * (innerWidth / innerHeight));
+  return Math.max(hFit, wFit);
+}
+const CAM_HOME = new THREE.Vector3(0, 0, homeZ());
+camera.position.copy(CAM_HOME);
+
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.setSize(innerWidth, innerHeight);
+document.body.appendChild(renderer.domElement);
+
+/* ---------- procedural background plate (swap for assets/lobby.jpg later) ---------- */
+function buildLobbyTexture() {
+  const c = document.createElement('canvas');
+  c.width = 2048; c.height = 1280;
+  const g = c.getContext('2d');
+
+  // night sky / wall
+  const sky = g.createLinearGradient(0, 0, 0, c.height);
+  sky.addColorStop(0, '#0a0709');
+  sky.addColorStop(0.55, '#120d10');
+  sky.addColorStop(0.72, '#1a1114');
+  sky.addColorStop(1, '#060406');
+  g.fillStyle = sky; g.fillRect(0, 0, c.width, c.height);
+
+  // skyline windows (corporate) behind the training floor
+  g.save();
+  for (let i = 0; i < 260; i++) {
+    const x = 460 + Math.random() * 1130;
+    const y = 240 + Math.random() * 340;
+    g.fillStyle = `rgba(255, ${180 + Math.random() * 60 | 0}, 120, ${0.04 + Math.random() * 0.12})`;
+    g.fillRect(x, y, 2 + Math.random() * 4, 2 + Math.random() * 5);
+  }
+  g.restore();
+
+  // giant window frame (center)
+  g.strokeStyle = 'rgba(212,175,55,0.16)';
+  g.lineWidth = 6;
+  g.strokeRect(450, 170, 1148, 500);
+  g.beginPath();
+  g.moveTo(1024, 170); g.lineTo(1024, 670);
+  g.moveTo(450, 420); g.lineTo(1598, 420);
+  g.stroke();
+
+  // central light shaft
+  const shaft = g.createRadialGradient(1024, 120, 40, 1024, 620, 700);
+  shaft.addColorStop(0, 'rgba(230, 190, 120, 0.30)');
+  shaft.addColorStop(0.4, 'rgba(230, 190, 120, 0.08)');
+  shaft.addColorStop(1, 'rgba(230, 190, 120, 0)');
+  g.fillStyle = shaft; g.fillRect(0, 0, c.width, c.height);
+
+  // dojo training floor
+  const floor = g.createLinearGradient(0, 830, 0, c.height);
+  floor.addColorStop(0, '#241318');
+  floor.addColorStop(0.5, '#150b0e');
+  floor.addColorStop(1, '#050304');
+  g.fillStyle = floor; g.fillRect(0, 830, c.width, c.height - 830);
+
+  // tatami seams w/ perspective
+  g.strokeStyle = 'rgba(212,175,55,0.10)';
+  g.lineWidth = 2;
+  for (let i = -6; i <= 6; i++) {
+    g.beginPath();
+    g.moveTo(1024 + i * 90, 830);
+    g.lineTo(1024 + i * 340, c.height);
+    g.stroke();
+  }
+  for (let j = 0; j < 5; j++) {
+    const y = 830 + Math.pow(j / 4, 1.6) * (c.height - 830);
+    g.beginPath(); g.moveTo(0, y); g.lineTo(c.width, y);
+    g.strokeStyle = `rgba(212,175,55,${0.05 + j * 0.015})`;
+    g.stroke();
+  }
+
+  // floor reflection glow under each pane
+  const paneCx = PANEL_U.map(u => u * c.width);
+  paneCx.forEach(px => {
+    const r = g.createRadialGradient(px, 880, 8, px, 880, 190);
+    r.addColorStop(0, 'rgba(180, 200, 220, 0.13)');
+    r.addColorStop(1, 'rgba(180, 200, 220, 0)');
+    g.fillStyle = r;
+    g.fillRect(px - 200, 830, 400, 260);
+  });
+
+  // vignette
+  const vig = g.createRadialGradient(1024, 640, 500, 1024, 640, 1400);
+  vig.addColorStop(0, 'rgba(0,0,0,0)');
+  vig.addColorStop(1, 'rgba(0,0,0,0.55)');
+  g.fillStyle = vig; g.fillRect(0, 0, c.width, c.height);
+
+  const tex = new THREE.CanvasTexture(c);
+  return tex;
+}
+
+const bgMat = new THREE.MeshBasicMaterial({ map: buildLobbyTexture() });
+const bgMesh = new THREE.Mesh(new THREE.PlaneGeometry(PLANE_W, PLANE_H), bgMat);
+scene.add(bgMesh);
+
+// swap in the real plate if it exists
+new THREE.TextureLoader().load('assets/lobby.jpg', t => { bgMat.map = t; bgMat.needsUpdate = true; }, undefined, () => {});
+
+/* ---------- persona panes ---------- */
+function placeholderTexture(cls, idx) {
+  const W = 512, H = Math.round(W * (PANE_H / PANE_W)); // match pane aspect
+  const c = document.createElement('canvas');
+  c.width = W; c.height = H;
+  const g = c.getContext('2d');
+  const cx = W / 2;
+  const y = f => H * f; // proportional vertical coords
+
+  // transparent bg with a faint aura tint so the door's own glow shows through
+  const grad = g.createLinearGradient(0, 0, 0, H);
+  grad.addColorStop(0, 'rgba(8, 7, 9, 0)');
+  grad.addColorStop(0.5, `rgba(${cls.auraRGB}, 0.10)`);
+  grad.addColorStop(1, 'rgba(8, 7, 9, 0)');
+  g.fillStyle = grad; g.fillRect(0, 0, W, H);
+
+  // aura rim behind the figure
+  const rim = g.createRadialGradient(cx, y(0.5), W * 0.2, cx, y(0.5), W * 0.85);
+  rim.addColorStop(0, `rgba(${cls.auraRGB}, 0.28)`);
+  rim.addColorStop(1, 'rgba(0,0,0,0)');
+  g.fillStyle = rim; g.fillRect(0, 0, W, H);
+
+  // silhouette (head, torso, legs) — feet near the door base
+  g.fillStyle = 'rgba(5, 4, 6, 0.95)';
+  g.beginPath(); g.arc(cx, y(0.30), W * 0.155, 0, Math.PI * 2); g.fill();
+  g.beginPath();
+  g.moveTo(cx - W * 0.20, y(0.395));
+  g.quadraticCurveTo(cx, y(0.355), cx + W * 0.20, y(0.395));
+  g.lineTo(cx + W * 0.26, y(0.66));
+  g.quadraticCurveTo(cx, y(0.69), cx - W * 0.26, y(0.66));
+  g.closePath(); g.fill();
+  g.fillRect(cx - W * 0.185, y(0.66), W * 0.15, H * 0.24);
+  g.fillRect(cx + W * 0.04, y(0.66), W * 0.15, H * 0.24);
+
+  // labels
+  g.textAlign = 'center';
+  g.fillStyle = `rgba(${cls.auraRGB}, 0.95)`;
+  g.font = '600 46px "DM Sans", sans-serif';
+  g.fillText(`0${idx + 1}`, cx, y(0.09));
+  g.fillStyle = 'rgba(237, 233, 225, 0.9)';
+  g.font = '500 34px "DM Mono", monospace';
+  const words = cls.name.replace('The ', '').split(' ');
+  words.forEach((w, i) => g.fillText(w.toUpperCase(), cx, y(0.925) + i * 42));
+  return new THREE.CanvasTexture(c);
+}
+
+const hitQuads = [];
+const paneMats = [];
+const paneGroups = [];
+
+CLASSES.forEach((cls, i) => {
+  const group = new THREE.Group();
+  group.position.set(PANE_X[i], PANE_Y, 0.05);
+
+  // accent glow frame (additive, sits just behind the pane — doors have real frames in the plate)
+  const frameMat = new THREE.MeshBasicMaterial({
+    color: new THREE.Color(cls.accent), transparent: true, opacity: 0.1,
+    blending: THREE.AdditiveBlending, depthWrite: false,
+  });
+  const frame = new THREE.Mesh(new THREE.PlaneGeometry(PANE_W + 0.22, PANE_H + 0.22), frameMat);
+  frame.position.z = -0.01;
+  group.add(frame);
+
+  // inner pane — transparent placeholder now, video texture when assets/{key}-idle.mp4 exists
+  const mat = new THREE.MeshBasicMaterial({ map: placeholderTexture(cls, i), transparent: true });
+  const pane = new THREE.Mesh(new THREE.PlaneGeometry(PANE_W, PANE_H), mat);
+  group.add(pane);
+  paneMats.push({ mat, frameMat });
+
+  // invisible hit quad (slightly larger for fat fingers)
+  const hit = new THREE.Mesh(
+    new THREE.PlaneGeometry(PANE_W + 0.5, PANE_H + 0.5),
+    new THREE.MeshBasicMaterial({ visible: false })
+  );
+  hit.position.z = 0.02;
+  hit.userData.idx = i;
+  group.add(hit);
+  hitQuads.push(hit);
+
+  scene.add(group);
+  paneGroups.push(group);
+
+  // upgrade 1: real photo still (assets/{key}-still.png), labels drawn on top
+  const still = new Image();
+  still.onload = () => {
+    if (mat.map && mat.map.isVideoTexture) return; // video already won
+    const W = 512, H = Math.round(W * (PANE_H / PANE_W));
+    const c = document.createElement('canvas');
+    c.width = W; c.height = H;
+    const g = c.getContext('2d');
+    // cover-fit
+    const s = Math.max(W / still.width, H / still.height);
+    g.drawImage(still, (W - still.width * s) / 2, (H - still.height * s) / 2,
+                still.width * s, still.height * s);
+    // top/bottom scrims for label legibility
+    let sc = g.createLinearGradient(0, 0, 0, H * 0.16);
+    sc.addColorStop(0, 'rgba(5,4,6,0.8)'); sc.addColorStop(1, 'rgba(5,4,6,0)');
+    g.fillStyle = sc; g.fillRect(0, 0, W, H * 0.16);
+    sc = g.createLinearGradient(0, H * 0.84, 0, H);
+    sc.addColorStop(0, 'rgba(5,4,6,0)'); sc.addColorStop(1, 'rgba(5,4,6,0.85)');
+    g.fillStyle = sc; g.fillRect(0, H * 0.84, W, H * 0.16);
+    g.textAlign = 'center';
+    g.fillStyle = `rgba(${cls.auraRGB}, 0.95)`;
+    g.font = '600 46px "DM Sans", sans-serif';
+    g.fillText(`0${i + 1}`, W / 2, H * 0.06);
+    g.fillStyle = 'rgba(237,233,225,0.9)';
+    g.font = '500 34px "DM Mono", monospace';
+    cls.name.replace('The ', '').split(' ').forEach((w, k) =>
+      g.fillText(w.toUpperCase(), W / 2, H * 0.945 + k * 42));
+    mat.map = new THREE.CanvasTexture(c);
+    mat.transparent = false; mat.needsUpdate = true;
+  };
+  still.src = `assets/${cls.key}-still.png`;
+
+  // upgrade 2: idle video (wins over the still)
+  const vid = document.createElement('video');
+  vid.muted = true; vid.loop = true; vid.playsInline = true; vid.preload = 'auto';
+  vid.src = `assets/${cls.key}-idle.mp4`;
+  vid.addEventListener('canplay', () => {
+    const vt = new THREE.VideoTexture(vid);
+    mat.map = vt; mat.transparent = false; mat.needsUpdate = true;
+    vid.play().catch(() => {});
+  }, { once: true });
+  vid.addEventListener('error', () => {}, { once: true });
+  vid.load();
+});
+
+/* ---------- interaction ---------- */
+const raycaster = new THREE.Raycaster();
+const mouseNDC = new THREE.Vector2();
+let hovered = -1;
+let selected = -1;
+let camTarget = CAM_HOME.clone();
+let lookTarget = new THREE.Vector3(0, 0, 0);
+
+const plateEl = document.getElementById('plate');
+
+function showPlate(i) {
+  const c = CLASSES[i];
+  document.documentElement.style.setProperty('--accent', c.accent);
+  document.getElementById('p-eyebrow').textContent = `// 0${i + 1}`;
+  document.getElementById('p-class').textContent = c.name;
+  document.getElementById('p-power').textContent = c.power;
+  document.getElementById('p-stats').innerHTML =
+    c.stats.map(s => `<div class="p-stat">${s[0]} — ${s[1]}</div>`).join('');
+  plateEl.classList.add('show');
+}
+
+addEventListener('mousemove', e => {
+  if (selected !== -1) return;
+  mouseNDC.set((e.clientX / innerWidth) * 2 - 1, -(e.clientY / innerHeight) * 2 + 1);
+  raycaster.setFromCamera(mouseNDC, camera);
+  const hits = raycaster.intersectObjects(hitQuads);
+  const idx = hits.length ? hits[0].object.userData.idx : -1;
+  if (idx !== hovered) {
+    hovered = idx;
+    document.body.style.cursor = idx === -1 ? 'default' : 'pointer';
+    if (idx === -1) plateEl.classList.remove('show');
+    else { showPlate(idx); Sound.hover(); }
+  }
+});
+
+addEventListener('click', e => {
+  if (selected !== -1) return;
+  if (e.target !== renderer.domElement) return;
+  mouseNDC.set((e.clientX / innerWidth) * 2 - 1, -(e.clientY / innerHeight) * 2 + 1);
+  raycaster.setFromCamera(mouseNDC, camera);
+  const hits = raycaster.intersectObjects(hitQuads);
+  if (hits.length) select(hits[0].object.userData.idx);
+});
+
+addEventListener('keydown', e => {
+  if (e.key === 'Escape') back();
+  const n = parseInt(e.key);
+  if (selected === -1 && n >= 1 && n <= 4) select(n - 1);
+});
+
+// debug: ?go=1..4 auto-selects a persona (handy while building)
+const goParam = new URLSearchParams(location.search).get('go');
+if (goParam) setTimeout(() => select(Math.min(4, Math.max(1, +goParam)) - 1), 800);
+
+/* ---------- dossier ---------- */
+let descendTimer = null;
+const dVideo = document.getElementById('d-video');
+// if the beat video is missing, hide the element so the hero poster backdrop shows
+dVideo.addEventListener('error', () => { dVideo.style.opacity = 0; }, true);
+dVideo.addEventListener('playing', () => { dVideo.style.opacity = 1; });
+dVideo.addEventListener('ended', () => {
+  clearTimeout(descendTimer);
+  descendTimer = setTimeout(() => {
+    document.getElementById('dossier').scrollTo({ top: innerHeight * 0.92, behavior: 'smooth' });
+  }, 600);
+});
+
+function select(i) {
+  selected = i;
+  Sound.select();
+  fadeMusic(0, 550);
+  plateEl.classList.remove('show');
+  const cls = CLASSES[i];
+  document.documentElement.style.setProperty('--accent', cls.accent);
+  camTarget = new THREE.Vector3(PANE_X[i], PANE_Y + 0.4, 3.2);
+  lookTarget = new THREE.Vector3(PANE_X[i], PANE_Y + 0.4, 0);
+  setTimeout(() => document.getElementById('flare').classList.add('on'), 520);
+  setTimeout(() => {
+    const d = document.getElementById('dossier');
+    const hero = d.querySelector('.d-hero');
+    hero.style.backgroundImage = `url(assets/${cls.key}-hero.jpg)`;
+    hero.style.backgroundSize = 'cover';
+    hero.style.backgroundPosition = 'center';
+    dVideo.style.opacity = 1;
+    dVideo.src = `assets/${cls.key}-beat.mp4`;
+    dVideo.poster = `assets/${cls.key}-hero.jpg`;
+    dVideo.loop = false;
+    document.getElementById('d-eyebrow').textContent = `// 0${i + 1} — dossier`;
+    document.getElementById('d-class').textContent = cls.reveal || cls.name;
+    document.getElementById('d-line').textContent = cls.line;
+    document.getElementById('d-about-h').textContent = cls.aboutH;
+    document.getElementById('d-about').textContent = cls.about;
+    document.getElementById('d-stats').innerHTML =
+      cls.stats.map(s => `<div class="s"><b>${s[0]}</b><span>${s[1]}</span></div>`).join('');
+    document.getElementById('d-engage').textContent = cls.engage;
+    d.scrollTop = 0;
+    d.classList.add('visible');
+    document.body.classList.add('in-dossier');
+    document.getElementById('d-back').style.display = 'block';
+    setTimeout(() => d.classList.add('shown'), 40);
+    document.getElementById('flare').classList.remove('on');
+    dVideo.play().catch(() => {});
+    // fallback descend if the beat video is missing / can't play
+    descendTimer = setTimeout(() => {
+      document.getElementById('dossier').scrollTo({ top: innerHeight * 0.92, behavior: 'smooth' });
+    }, 6500);
+  }, 950);
+}
+
+function back() {
+  if (selected === -1) return;
+  Sound.back();
+  if (musicOn) { bgm.play().catch(() => {}); fadeMusic(MUSIC_VOL, 1000); }
+  clearTimeout(descendTimer);
+  dVideo.pause();
+  const d = document.getElementById('dossier');
+  d.classList.remove('shown');
+  document.body.classList.remove('in-dossier');
+  document.getElementById('d-back').style.display = 'none';
+  setTimeout(() => d.classList.remove('visible'), 900);
+  selected = -1;
+  camTarget = CAM_HOME.clone();
+  lookTarget = new THREE.Vector3(0, 0, 0);
+}
+document.getElementById('d-back').addEventListener('click', back);
+
+/* ---------- ambient music (optional asset) ---------- */
+const bgm = document.getElementById('bgm');
+const MUSIC_VOL = 0.22;
+bgm.volume = MUSIC_VOL;
+bgm.play().catch(() => {});
+const musicBtn = document.getElementById('music-toggle');
+let musicOn = true;
+function renderMusicBtn() {
+  musicBtn.innerHTML = musicOn
+    ? '<span class="mt-glyph">&#10074;&#10074;</span> music'
+    : '<span class="mt-glyph">&#9654;</span> music';
+}
+let musicFade = null;
+function fadeMusic(to, ms) {
+  if (musicFade) clearInterval(musicFade);
+  const from = bgm.volume, start = performance.now();
+  musicFade = setInterval(() => {
+    const k = Math.min(1, (performance.now() - start) / ms);
+    bgm.volume = from + (to - from) * k;
+    if (k >= 1) { clearInterval(musicFade); musicFade = null; }
+  }, 30);
+}
+musicBtn.addEventListener('click', e => {
+  e.stopPropagation();
+  musicOn = !musicOn;
+  if (musicOn) { bgm.play().catch(() => {}); fadeMusic(MUSIC_VOL, 500); }
+  else fadeMusic(0, 400);
+  renderMusicBtn();
+});
+renderMusicBtn();
+// retry autoplay on first gesture
+addEventListener('pointerdown', () => { if (musicOn) bgm.play().catch(() => {}); }, { once: true });
+
+/* ---------- tiny synth SFX (no asset needed) ---------- */
+const Sound = (() => {
+  let ctx = null;
+  const ac = () => (ctx ||= new (window.AudioContext || window.webkitAudioContext)());
+  function blip(freq, dur, vol) {
+    try {
+      const a = ac(), o = a.createOscillator(), g = a.createGain();
+      o.frequency.value = freq; o.type = 'sine';
+      g.gain.setValueAtTime(vol, a.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.0001, a.currentTime + dur);
+      o.connect(g); g.connect(a.destination);
+      o.start(); o.stop(a.currentTime + dur);
+    } catch (e) {}
+  }
+  return {
+    hover: () => blip(660, 0.08, 0.025),
+    select: () => blip(330, 0.5, 0.06),
+    back: () => blip(220, 0.3, 0.05),
+  };
+})();
+
+/* ---------- render loop ---------- */
+const clock = new THREE.Clock();
+function tick() {
+  requestAnimationFrame(tick);
+  const t = clock.getElapsedTime();
+
+  // idle bob + hover brightness
+  paneGroups.forEach((g, i) => {
+    g.position.y = PANE_Y + Math.sin(t * 0.8 + i * 1.7) * 0.015;
+    const target = (i === hovered && selected === -1) ? 0.55 : 0.1;
+    paneMats[i].frameMat.opacity += (target - paneMats[i].frameMat.opacity) * 0.1;
+  });
+
+  // camera lerp
+  camera.position.lerp(camTarget, 0.045);
+  camera.lookAt(lookTarget);
+
+  renderer.render(scene, camera);
+}
+tick();
+
+addEventListener('resize', () => {
+  camera.aspect = innerWidth / innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth, innerHeight);
+  CAM_HOME.z = homeZ();
+  if (selected === -1) camTarget = CAM_HOME.clone();
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,135 @@
+/* ============================================
+   BRETT LECHTENBERG — shared interior-page styles
+   Dark cinematic theme matching the lobby.
+   ============================================ */
+:root {
+  --accent: #D4AF37;
+  --cranberry: #C21E56;
+  --bg: #070607;
+  --panel: #0E0C0E;
+  --text: #EDE9E1;
+  --dim: #9A948A;
+  --line: rgba(237, 233, 225, 0.1);
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg); color: var(--text);
+  font-family: 'DM Sans', sans-serif; font-size: 16px; line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ---------- nav ---------- */
+.nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 50;
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 20px 5vw;
+  background: linear-gradient(to bottom, rgba(7,6,7,0.92), rgba(7,6,7,0));
+}
+.nav-logo {
+  font-family: 'DM Mono', monospace; font-size: 12px; letter-spacing: 0.08em;
+  color: var(--accent); text-decoration: none;
+}
+.nav-links { display: flex; gap: 26px; align-items: center; }
+.nav-links a {
+  color: var(--dim); text-decoration: none; font-family: 'DM Mono', monospace;
+  font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; transition: color 0.25s;
+}
+.nav-links a:hover, .nav-links a.active { color: var(--text); }
+.nav-links a.lobby-link { color: var(--accent); }
+
+/* ---------- page hero ---------- */
+.page-hero { padding: 170px 5vw 70px; max-width: 1060px; margin: 0 auto; }
+.eyebrow {
+  font-family: 'DM Mono', monospace; font-size: 12px; letter-spacing: 0.24em;
+  color: var(--accent); text-transform: lowercase;
+}
+h1.display {
+  font-family: 'Cormorant Garamond', serif; font-weight: 400;
+  font-size: clamp(44px, 6.4vw, 88px); line-height: 1.04; margin-top: 16px;
+}
+h1.display em { font-style: italic; }
+.lede { margin-top: 22px; font-size: 18px; color: var(--dim); max-width: 640px; }
+
+/* ---------- sections ---------- */
+.section { max-width: 1060px; margin: 0 auto; padding: 60px 5vw; }
+.section-label {
+  font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 0.24em;
+  text-transform: uppercase; color: var(--accent); margin-bottom: 18px;
+}
+h2.h {
+  font-family: 'Cormorant Garamond', serif; font-weight: 500;
+  font-size: clamp(28px, 3.6vw, 46px); line-height: 1.15; margin-bottom: 22px;
+}
+p.body { color: #C9C4BA; max-width: 720px; margin-bottom: 18px; }
+p.body strong { color: var(--text); }
+blockquote.pull {
+  border-left: 2px solid var(--accent); padding-left: 24px; margin: 34px 0;
+  font-family: 'Cormorant Garamond', serif; font-size: 24px; font-style: italic; line-height: 1.5;
+}
+blockquote.pull footer {
+  margin-top: 10px; font-family: 'DM Mono', monospace; font-style: normal;
+  font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--dim);
+}
+
+/* ---------- stat band ---------- */
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 18px; margin: 40px 0; }
+.stat { border: 1px solid var(--line); border-radius: 12px; padding: 24px 20px; background: var(--panel); }
+.stat b { display: block; font-family: 'Cormorant Garamond', serif; font-weight: 500; font-size: 34px; color: var(--accent); }
+.stat span { display: block; margin-top: 6px; font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--dim); }
+
+/* ---------- cards ---------- */
+.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 18px; margin-top: 30px; }
+.card {
+  border: 1px solid var(--line); border-radius: 14px; padding: 28px 26px;
+  background: var(--panel); transition: border-color 0.3s, transform 0.3s;
+}
+.card:hover { border-color: rgba(212, 175, 55, 0.45); transform: translateY(-3px); }
+.card .tag {
+  font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.18em;
+  text-transform: uppercase; color: var(--accent);
+}
+.card h3 { font-family: 'Cormorant Garamond', serif; font-weight: 500; font-size: 26px; margin: 10px 0 8px; }
+.card .sub { font-size: 13px; color: var(--dim); margin-bottom: 12px; }
+.card p { font-size: 14.5px; color: #C9C4BA; }
+.card .meta { margin-top: 14px; font-family: 'DM Mono', monospace; font-size: 11px; color: var(--dim); letter-spacing: 0.06em; }
+
+/* ---------- lane blocks (speaking) ---------- */
+.lane { border-top: 1px solid var(--line); padding: 46px 0; }
+.lane-no { font-family: 'DM Mono', monospace; font-size: 12px; letter-spacing: 0.22em; color: var(--accent); }
+.lane h3 { font-family: 'Cormorant Garamond', serif; font-weight: 500; font-size: clamp(26px, 3vw, 38px); margin: 10px 0 8px; }
+.lane .problem { font-style: italic; color: var(--dim); margin-bottom: 14px; }
+.lane p { color: #C9C4BA; max-width: 720px; }
+.talks { margin-top: 22px; display: grid; gap: 10px; }
+.talk {
+  display: flex; justify-content: space-between; gap: 18px; align-items: baseline;
+  border: 1px solid var(--line); border-radius: 10px; padding: 16px 20px; background: var(--panel);
+}
+.talk b { font-size: 15px; }
+.talk i { display: block; font-style: normal; font-size: 13px; color: var(--dim); margin-top: 3px; }
+.talk .dur { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--accent); white-space: nowrap; }
+
+/* ---------- CTA ---------- */
+.cta-band { text-align: center; padding: 90px 5vw 120px; }
+.cta-band h2 { font-family: 'Cormorant Garamond', serif; font-weight: 500; font-size: clamp(30px, 4vw, 52px); margin-bottom: 14px; }
+.cta-band p { color: var(--dim); max-width: 520px; margin: 0 auto 34px; }
+.btn {
+  display: inline-block; text-decoration: none; color: var(--bg); background: var(--accent);
+  font-weight: 700; font-size: 14px; letter-spacing: 0.06em; padding: 16px 36px; border-radius: 40px;
+  transition: transform 0.25s, box-shadow 0.25s;
+}
+.btn:hover { transform: translateY(-2px); box-shadow: 0 10px 34px rgba(212, 175, 55, 0.3); }
+.btn.ghost { background: transparent; color: var(--text); border: 1px solid rgba(237, 233, 225, 0.25); margin-left: 12px; }
+
+/* ---------- footer ---------- */
+.footer {
+  border-top: 1px solid var(--line); padding: 36px 5vw; text-align: center;
+  font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 0.1em; color: var(--dim);
+}
+.footer a { color: var(--accent); text-decoration: none; }
+
+@media (max-width: 720px) {
+  .nav-links { gap: 14px; }
+  .nav-links a { font-size: 10px; letter-spacing: 0.12em; }
+  .talk { flex-direction: column; gap: 6px; }
+}
