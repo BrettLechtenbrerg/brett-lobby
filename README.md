@@ -1,7 +1,8 @@
 # Brett Lechtenberg — The Lobby
 
-**Live:** https://brett-lobby.vercel.app
+**Live:** https://lobby.brettlechtenberg.com (also https://brett-lobby.vercel.app)
 **Repo:** https://github.com/BrettLechtenbrerg/brett-lobby
+**Deploys:** Vercel, auto-deploy on push to `main` (~35s)
 
 Character-select home screen (inspired by adandelacruz.com). Standalone project —
 does NOT touch the live brettlechtenberg.com site.
@@ -14,61 +15,73 @@ python3 -m http.server 8080
 # open http://localhost:8080
 ```
 
-Works today — lobby plate and dossier hero images are already generated.
-Hover a panel, click it (or press 1–4), Esc / "back to the lobby" to return.
-Debug: `?go=1`..`?go=4` auto-opens a dossier.
+Hover a door, click it (or press 1–4), Esc / "back to the lobby" to return.
+Debug: `?go=1`..`?go=4` auto-opens a dossier · `?peek=1`..`?peek=4` freezes a door half-open.
 
-Pages: `index.html` (lobby) · `about.html` · `speaking.html` · `books.html` · `contact.html`
-(all interior pages share `site.css` and carry REAL copy pulled from brettlechtenberg.com).
+Pages: `index.html` (lobby) · `about.html` · `speaking.html` · `training.html` · `books.html` · `contact.html`
+(interior pages share `site.css`; all copy is REAL, pulled from brettlechtenberg.com).
+
+## Current feature set (July 2026)
+
+- **3D lobby** (Three.js r128 CDN): background plate, 4 hinged glass doors labeled
+  DOOR 1–4, idle bob, breathing frame glow, occasional idle "door crack" with light sliver
+- **Walk-through cinematic** (3 beats, ~3.4s): approach & stop off-axis → door slab
+  (BoxGeometry with lit edge) swings ~86° toward viewer + hinge-creak sound →
+  footstep-bob dolly through → fade-to-black threshold → dossier lights up
+- **Dossier**: pins at top, bouncing SCROLL cue (no auto-scroll), per-persona hero +
+  optional beat video, quiet quiz link under the CTA
+- **"Which Brett" quiz**: pulsing gold pill above the nav (lobby) + text link in every
+  dossier; 4 questions, keyboard 1–4; result opens the winning door (switches rooms
+  if you're already inside one); links to the full Rockstar Team Quiz on the main site
+- **Hint pill** mid-screen: "← click a door to step inside →", pulses, gone after first click
+- **Face favicon** (circular headshot, gold ring): `favicon.ico` + `assets/favicon-*.png`, all pages
+- **Sound**: WebAudio blips + hinge creak; ambient music with pause toggle
+- Mobile portrait shows a rotate-your-device gate
 
 ## The four personas (edit in `index.html` → `CLASSES` array)
 
-| # | Key       | Persona                | Accent    |
-|---|-----------|------------------------|-----------|
-| 1 | `speaker` | The Keynote Speaker    | Gold      |
-| 2 | `coach`   | The Performance Coach  | Cranberry |
-| 3 | `author`  | The Author             | Blue      |
-| 4 | `trainer` | The Corporate Trainer  | Silver    |
+| # | Key       | Persona                | Accent    | Outfit (still) |
+|---|-----------|------------------------|-----------|----------------|
+| 1 | `speaker` | The Keynote Speaker    | Gold      | dark suit + blue tee (original photo) |
+| 2 | `coach`   | The Performance Coach  | Cranberry | light heather-gray quarter-zip |
+| 3 | `author`  | The Author             | Gold-yellow | camel tweed + cream turtleneck |
+| 4 | `trainer` | The Corporate Trainer  | Silver    | white shirt + navy vest |
 
-All persona copy is REAL (sourced from brettlechtenberg.com). Tweak freely.
+Outfits 2–4 are AI-edited (gpt-image-2) from the same original photo — face/pose identical.
 
-## Assets to drop into `assets/` (all optional; site upgrades automatically)
+## Assets
 
-| File                  | Status | What it is                                              | Spec |
-|-----------------------|--------|---------------------------------------------------------|------|
-| `lobby.jpg`           | ✅ DONE (AI-generated high-rise dojo) | Background plate | 16:10, dark |
-| `{key}-hero.jpg`      | ✅ DONE (AI-generated, all 4) | Dossier hero backdrop / video poster | 16:9 |
-| `{key}-still.png`     | ✅ DONE (real photos of Brett, composited) | Photo panel shown in each door until video exists | tall 1:4.26 |
-| `{key}-idle.mp4`      | ⏳ needs Brett footage | Looping "alive" clip per persona (replaces still) | 3–8s loop, vertical ~1:3 crop OK, <5 MB, muted |
-| `{key}-beat.mp4`      | ⏳ needs Brett footage | Short intro/clone video per persona (dossier) | 6–12s, landscape 16:9, <4 MB |
-| `ambient-music.mp3`   | ⏳ pick a track | Lobby ambience (home screen only) | loopable, quiet |
+| File                  | Status | Notes |
+|-----------------------|--------|-------|
+| `assets/lobby.jpg`    | ✅ | AI-generated high-rise dojo plate. If regenerated, re-measure `PANEL_U`/`PANEL_V0`/`PANEL_V1` in `index.html` |
+| `assets/{key}-hero.jpg` | ✅ | Dossier hero backdrops. ⚠️ Still show the OLD blue-tee outfit — regenerate to match new outfits if desired |
+| `assets/{key}-still.png` | ✅ | Door photo panels, uniform figure size (feet on same baseline) |
+| `assets/favicon-*.png`, `favicon.ico` | ✅ | Face favicon |
+| `assets/ambient-music.mp3` | ✅ | Lobby ambience |
+| `assets/{key}-idle.mp4` | ⏳ | Looping "alive" clip per door (replaces still). 3–8s, vertical, <5 MB, muted |
+| `assets/{key}-beat.mp4` | ⏳ | Dossier intro/clone video. 6–12s, 16:9, <4 MB |
+| `source-assets/`      | ✅ | ORIGINALS — cutouts + AI outfit variants. Needed to regenerate stills. Do not delete |
 
-Note: the four glass-door panes are UV-mapped to the doors in `lobby.jpg`
-(measured by brightness-run detection). If you regenerate `lobby.jpg`, re-measure
-and update `PANEL_U` / `PANEL_V0` / `PANEL_V1` in `index.html`.
+`{key}` = speaker / coach / author / trainer. (Old `sensei-*` assets kept in `assets/`.)
 
-`{key}` = speaker / coach / author / trainer.
-(Old `sensei-*` assets remain in `assets/` in case the mystery persona returns.)
+## Regenerating the door stills
 
-## Photo shoot checklist (for the AI clone videos)
+The stills are built from `source-assets/` by a Python/PIL pipeline (flood-fill background
+removal → uniform figure height → aura gradient + rim glow → paste at shared baseline).
+The script lives in git history (commit "Uniform figure size…") and in RESUME.md §How-to.
 
-- Full-body, standing, facing camera, feet visible
-- Even, soft lighting; plain or dark background (easy to cut out)
-- One outfit per persona:
-  - Speaker: sharp suit / stage look
-  - Coach: smart casual (blazer, no tie)
-  - Author: relaxed professional (book in hand works great)
-  - Sensei: gi or black training wear (hood/shadow optional for mystery)
-- Shoot 4K video too if possible: 10s of standing still + one small gesture
-  per persona (point, arms crossed, bow, page turn) — makes far better
-  AI idle/beat clips than stills alone.
+## Photo shoot checklist (for real AI clone videos)
+
+- Full-body, standing, facing camera, feet visible; soft even light, plain/dark background
+- One outfit per persona (match the table above so doors stay consistent)
+- Shoot 4K video: 10s standing still + one small gesture per persona
+  (point, arms crossed, book in hand, whiteboard gesture)
 
 ## Reference: how Adan's works (from source analysis)
 
 - Static HTML + Three.js r128 CDN, hosted on Vercel
 - Background = 4K plate image + ambient video texture
-- Each pane = video texture (`{key}-idle.mp4`) mapped onto measured UV regions
-- Click → raycast → camera lerp to door → white flare → fullscreen dossier
-  playing `{key}-beat.mp4`, auto-scrolls to bio when video ends
+- Each pane = video texture mapped onto measured UV regions
+- Click → raycast → camera lerp → flare → fullscreen dossier with beat video
 - Ambient music home-screen only, fades on select
 - Contact form: Web3Forms; analytics: GA4
