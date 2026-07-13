@@ -717,6 +717,7 @@ function showQuizResult() {
   };
 }
 function openQuiz() {
+  if (selected !== -1) return; // ignore during the door walk-through
   qIdx = 0; qScores = [0, 0, 0, 0];
   renderQuiz();
   quizEl.classList.add('open');
