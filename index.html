@@ -129,6 +129,13 @@ body.in-dossier #quiz-pill { display: none; }
 }
 .q-alt { margin-top: 26px !important; font-size: 12.5px; }
 .q-alt a { color: var(--accent); }
+.d-quiz-link {
+  display: block; margin-top: 18px; background: none; border: none; padding: 0;
+  color: var(--dim); font-family: 'DM Sans', sans-serif; font-size: 13px;
+  cursor: pointer; text-decoration: underline; text-underline-offset: 4px;
+  transition: color 0.25s;
+}
+.d-quiz-link:hover { color: var(--accent); }
 
 /* ---------- threshold fade (crossing into the room) ---------- */
 #flare {
@@ -158,6 +165,19 @@ body.in-dossier #quiz-pill { display: none; }
   background: linear-gradient(to bottom, rgba(7,6,7,0.15) 0%, rgba(7,6,7,0) 40%, rgba(7,6,7,0.92) 96%);
 }
 .d-hero-text { position: absolute; bottom: 54px; left: 6vw; right: 6vw; }
+.d-scroll-cue {
+  position: absolute; bottom: 18px; left: 50%; transform: translateX(-50%);
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+  color: var(--accent); cursor: pointer; z-index: 2;
+  font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.3em; text-transform: uppercase;
+  animation: cue-bounce 1.8s ease-in-out infinite;
+  transition: opacity 0.5s;
+}
+.d-scroll-cue.hidden { opacity: 0; pointer-events: none; }
+@keyframes cue-bounce {
+  0%, 100% { transform: translateX(-50%) translateY(0); opacity: 0.75; }
+  50% { transform: translateX(-50%) translateY(8px); opacity: 1; }
+}
 #d-eyebrow { font-family: 'DM Mono', monospace; font-size: 12px; letter-spacing: 0.24em; color: var(--accent); }
 #d-class { font-family: 'Cormorant Garamond', serif; font-size: clamp(44px, 6.4vw, 92px); font-weight: 500; line-height: 1.02; margin-top: 10px; }
 #d-line { margin-top: 14px; font-size: 16px; color: var(--dim); }
@@ -249,6 +269,10 @@ body.in-dossier #quiz-pill { display: none; }
       <div id="d-class"></div>
       <div id="d-line"></div>
     </div>
+    <div class="d-scroll-cue" id="d-scroll-cue">
+      <span>scroll</span>
+      <svg width="18" height="11" viewBox="0 0 18 11" fill="none"><path d="M1 1l8 8 8-8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+    </div>
   </div>
   <div class="d-body">
     <div id="d-about-h"></div>
@@ -259,6 +283,7 @@ body.in-dossier #quiz-pill { display: none; }
       <div id="d-engage"></div>
     </div>
     <a class="d-cta" href="contact.html">Start the conversation &rarr;</a>
+    <button class="d-quiz-link" id="d-quiz-link">Not sure this is the right Brett? Take the 60-second quiz →</button>
   </div>
 </div>
 <button id="d-back">&larr; back to the lobby</button>
@@ -709,7 +734,16 @@ function showQuizResult() {
   document.getElementById('qr-eyebrow').textContent = `// your Brett — 0${winner + 1}`;
   document.getElementById('qr-name').textContent = cls.name;
   document.getElementById('qr-line').textContent = cls.line;
-  document.getElementById('qr-go').onclick = () => { closeQuiz(); select(winner); };
+  document.getElementById('qr-go').onclick = () => {
+    closeQuiz();
+    if (winner === selected) return;            // already in the right room
+    if (selected !== -1) {                      // switching rooms: exit, then enter
+      back();
+      setTimeout(() => select(winner), 1100);
+    } else {
+      select(winner);
+    }
+  };
   document.getElementById('qr-again').onclick = () => {
     document.documentElement.style.setProperty('--accent', '#D4AF37');
     qIdx = 0; qScores = [0, 0, 0, 0];
@@ -717,11 +751,13 @@ function showQuizResult() {
   };
 }
 function openQuiz() {
-  if (selected !== -1) return; // ignore during the door walk-through
+  // allowed from the lobby or from inside a dossier — just not mid-walk-through
+  if (selected !== -1 && !document.body.classList.contains('in-dossier')) return;
   qIdx = 0; qScores = [0, 0, 0, 0];
   renderQuiz();
   quizEl.classList.add('open');
 }
+document.getElementById('d-quiz-link').addEventListener('click', openQuiz);
 function closeQuiz() {
   quizEl.classList.remove('open');
   if (selected === -1) document.documentElement.style.setProperty('--accent', '#D4AF37'); // restore brand gold unless entering a door
@@ -746,16 +782,18 @@ if (peekParam) {
 }
 
 /* ---------- dossier ---------- */
-let descendTimer = null;
 const dVideo = document.getElementById('d-video');
 // if the beat video is missing, hide the element so the hero poster backdrop shows
 dVideo.addEventListener('error', () => { dVideo.style.opacity = 0; }, true);
 dVideo.addEventListener('playing', () => { dVideo.style.opacity = 1; });
-dVideo.addEventListener('ended', () => {
-  clearTimeout(descendTimer);
-  descendTimer = setTimeout(() => {
-    document.getElementById('dossier').scrollTo({ top: innerHeight * 0.92, behavior: 'smooth' });
-  }, 600);
+// visitor scrolls down themselves — the cue below invites it, nothing auto-scrolls
+const scrollCue = document.getElementById('d-scroll-cue');
+const dossierEl = document.getElementById('dossier');
+dossierEl.addEventListener('scroll', () => {
+  scrollCue.classList.toggle('hidden', dossierEl.scrollTop > 40);
+});
+scrollCue.addEventListener('click', () => {
+  dossierEl.scrollTo({ top: innerHeight * 0.92, behavior: 'smooth' });
 });
 
 function select(i) {
@@ -822,6 +860,7 @@ function select(i) {
       cls.stats.map(s => `<div class="s"><b>${s[0]}</b><span>${s[1]}</span></div>`).join('');
     document.getElementById('d-engage').textContent = cls.engage;
     d.scrollTop = 0;
+    scrollCue.classList.remove('hidden');
     d.classList.add('visible');
     document.body.classList.add('in-dossier');
     document.getElementById('d-back').style.display = 'block';
@@ -829,10 +868,6 @@ function select(i) {
     // then the room lights come up — black veil lifts to reveal the dossier
     setTimeout(() => document.getElementById('flare').classList.remove('on'), 250);
     dVideo.play().catch(() => {});
-    // fallback descend if the beat video is missing / can't play
-    descendTimer = setTimeout(() => {
-      document.getElementById('dossier').scrollTo({ top: innerHeight * 0.92, behavior: 'smooth' });
-    }, 6500);
   }, 3400);
 }
 
@@ -840,7 +875,6 @@ function back() {
   if (selected === -1) return;
   Sound.back();
   if (musicOn) { bgm.play().catch(() => {}); fadeMusic(MUSIC_VOL, 1000); }
-  clearTimeout(descendTimer);
   dVideo.pause();
   const d = document.getElementById('dossier');
   d.classList.remove('shown');
