@@ -5,6 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Brett Lechtenberg | Choose Who You Need</title>
 <meta name="description" content="Peak performance coach, keynote speaker, author, and martial arts master. Four ways to work with Brett Lechtenberg — pick the one you need.">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32.png">
+<link rel="icon" type="image/png" sizes="192x192" href="/assets/favicon-192.png">
+<link rel="apple-touch-icon" href="/assets/favicon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
@@ -393,7 +397,24 @@ const paneMats = [];
 const paneGroups = [];
 const doorPivots = [];   // hinged glass panes
 const gapMats = [];      // glow planes behind each door
-const doorOpen = [0, 0, 0, 0]; // target swing per door (radians)
+
+/* ---------- tiny tween timeline (deterministic cinematic beats) ---------- */
+const tweens = [];
+const easeInOut = t => (t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2);
+const easeOut = t => 1 - Math.pow(1 - t, 3);
+function tween(dur, update, { delay = 0, ease = easeInOut, done } = {}) {
+  tweens.push({ t0: performance.now() + delay, dur, ease, update, done, started: false });
+}
+function runTweens(now) {
+  for (let i = tweens.length - 1; i >= 0; i--) {
+    const tw = tweens[i];
+    if (now < tw.t0) continue;
+    const k = Math.min(1, (now - tw.t0) / tw.dur);
+    tw.update(tw.ease(k));
+    if (k >= 1) { tweens.splice(i, 1); tw.done && tw.done(); }
+  }
+}
+let cine = false; // true while the walk-through sequence owns the camera
 
 CLASSES.forEach((cls, i) => {
   const group = new THREE.Group();
@@ -558,24 +579,43 @@ dVideo.addEventListener('ended', () => {
 
 function select(i) {
   selected = i;
+  cine = true;
   Sound.select();
   fadeMusic(0, 550);
   plateEl.classList.remove('show');
   const cls = CLASSES[i];
   document.documentElement.style.setProperty('--accent', cls.accent);
-  // phase 1 — walk up to the door
-  camTarget = new THREE.Vector3(PANE_X[i], PANE_Y + 0.4, 3.0);
-  lookTarget = new THREE.Vector3(PANE_X[i], PANE_Y + 0.4, 0);
-  // phase 2 — the door swings open, light spills out
-  setTimeout(() => {
-    doorOpen[i] = doorPivots[i].dir * -1.45; // ~83° swing on its hinge
-    Sound.door();
-  }, 450);
-  // phase 3 — step through the open doorway
-  setTimeout(() => {
-    camTarget = new THREE.Vector3(PANE_X[i], PANE_Y + 0.4, 0.55);
-  }, 900);
-  setTimeout(() => document.getElementById('flare').classList.add('on'), 1250);
+
+  const doorX = PANE_X[i], doorY = PANE_Y + 0.4;
+  const p0 = camera.position.clone();
+  const pv = doorPivots[i].pivot, dir = doorPivots[i].dir;
+
+  // BEAT 1 (0–800ms) — walk up to the door and STOP, framing it
+  tween(800, k => {
+    camera.position.lerpVectors(p0, new THREE.Vector3(doorX, doorY, 3.6), k);
+    camera.lookAt(doorX, doorY, 0);
+  });
+
+  // BEAT 2 (900–2200ms) — camera holds still; the door swings open slowly,
+  // accent light cracking through and flooding out as it opens
+  tween(1300, k => {
+    pv.rotation.y = dir * -1.5 * k;              // 0 → ~86° swing
+    gapMats[i].opacity = Math.min(0.95, k * 1.2); // light floods the doorway
+  }, { delay: 900 });
+  setTimeout(() => Sound.door(), 900);
+
+  // BEAT 3 (2300–3200ms) — walk THROUGH the open doorway, gentle footstep bob
+  tween(900, k => {
+    const z = 3.6 + (0.4 - 3.6) * k;
+    camera.position.set(
+      doorX + Math.sin(k * Math.PI * 3) * 0.04,   // subtle sway
+      doorY + Math.abs(Math.sin(k * Math.PI * 4)) * 0.03, // footsteps
+      z
+    );
+    camera.lookAt(doorX, doorY, -3);
+  }, { delay: 2300, ease: easeInOut });
+
+  setTimeout(() => document.getElementById('flare').classList.add('on'), 2950);
   setTimeout(() => {
     const d = document.getElementById('dossier');
     const hero = d.querySelector('.d-hero');
@@ -605,7 +645,7 @@ function select(i) {
     descendTimer = setTimeout(() => {
       document.getElementById('dossier').scrollTo({ top: innerHeight * 0.92, behavior: 'smooth' });
     }, 6500);
-  }, 1650);
+  }, 3300);
 }
 
 function back() {
@@ -619,7 +659,11 @@ function back() {
   document.body.classList.remove('in-dossier');
   document.getElementById('d-back').style.display = 'none';
   setTimeout(() => d.classList.remove('visible'), 900);
-  doorOpen[selected] = 0; // close the door behind you
+  // close the door behind you
+  const pv = doorPivots[selected].pivot, gm = gapMats[selected];
+  const r0 = pv.rotation.y, g0 = gm.opacity;
+  tween(800, k => { pv.rotation.y = r0 * (1 - k); gm.opacity = g0 * (1 - k); });
+  cine = false;
   selected = -1;
   camTarget = CAM_HOME.clone();
   lookTarget = new THREE.Vector3(0, 0, 0);
@@ -687,22 +731,19 @@ function tick() {
   requestAnimationFrame(tick);
   const t = clock.getElapsedTime();
 
-  // idle bob + hover brightness + door swing
+  // idle bob + hover brightness
   paneGroups.forEach((g, i) => {
     g.position.y = PANE_Y + Math.sin(t * 0.8 + i * 1.7) * 0.015;
     const target = (i === hovered && selected === -1) ? 0.55 : 0.1;
     paneMats[i].frameMat.opacity += (target - paneMats[i].frameMat.opacity) * 0.1;
-    // swing the glass pane on its hinge (ease-out)
-    const pv = doorPivots[i].pivot;
-    pv.rotation.y += (doorOpen[i] - pv.rotation.y) * 0.07;
-    // light spills through the opening doorway
-    const openness = Math.abs(pv.rotation.y) / 1.45;
-    gapMats[i].opacity += (openness * 0.55 - gapMats[i].opacity) * 0.1;
   });
 
-  // camera lerp
-  camera.position.lerp(camTarget, 0.045);
-  camera.lookAt(lookTarget);
+  // cinematic tweens own the camera during the walk-through
+  runTweens(performance.now());
+  if (!cine) {
+    camera.position.lerp(camTarget, 0.045);
+    camera.lookAt(lookTarget);
+  }
 
   renderer.render(scene, camera);
 }
