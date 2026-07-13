@@ -74,14 +74,23 @@ body.in-dossier { overflow: hidden; }
 /* ---------- quiz pill + overlay ---------- */
 #quiz-pill {
   position: fixed; bottom: 92px; left: 50%; transform: translateX(-50%); z-index: 20;
-  background: rgba(10, 8, 8, 0.55); border: 1px solid rgba(212, 175, 55, 0.35);
-  color: var(--dim); border-radius: 30px; padding: 10px 22px; cursor: pointer;
+  background: linear-gradient(180deg, rgba(212, 175, 55, 0.22), rgba(212, 175, 55, 0.10));
+  border: 1px solid rgba(212, 175, 55, 0.55);
+  color: var(--text); border-radius: 30px; padding: 11px 24px; cursor: pointer;
   font-family: 'DM Sans', sans-serif; font-size: 13px; backdrop-filter: blur(12px);
-  transition: border-color 0.3s, color 0.3s;
+  transition: background 0.3s, border-color 0.3s, transform 0.3s;
+  animation: pill-pulse 2.6s ease-in-out infinite;
 }
-#quiz-pill span { color: var(--accent); font-weight: 700; }
-#quiz-pill:hover { border-color: var(--accent); color: var(--text); }
+#quiz-pill span { color: #E9C767; font-weight: 700; }
+#quiz-pill:hover {
+  background: linear-gradient(180deg, rgba(212, 175, 55, 0.38), rgba(212, 175, 55, 0.18));
+  border-color: #D4AF37; transform: translateX(-50%) scale(1.04); animation: none;
+}
 body.in-dossier #quiz-pill { display: none; }
+@keyframes pill-pulse {
+  0%, 100% { border-color: rgba(212, 175, 55, 0.55); box-shadow: 0 0 0 rgba(212, 175, 55, 0); }
+  50% { border-color: rgba(212, 175, 55, 1); box-shadow: 0 0 26px rgba(212, 175, 55, 0.35); }
+}
 #quiz {
   position: fixed; inset: 0; z-index: 60; display: none;
   align-items: center; justify-content: center;
@@ -121,12 +130,12 @@ body.in-dossier #quiz-pill { display: none; }
 .q-alt { margin-top: 26px !important; font-size: 12.5px; }
 .q-alt a { color: var(--accent); }
 
-/* ---------- lens flare ---------- */
+/* ---------- threshold fade (crossing into the room) ---------- */
 #flare {
-  position: fixed; inset: 0; z-index: 40; background: #fff; opacity: 0; pointer-events: none;
-  transition: opacity 0.45s;
+  position: fixed; inset: 0; z-index: 40; background: #070607; opacity: 0; pointer-events: none;
+  transition: opacity 0.6s ease-in;
 }
-#flare.on { opacity: 0.92; }
+#flare.on { opacity: 1; }
 
 /* ---------- dossier ---------- */
 #dossier {
@@ -632,7 +641,11 @@ addEventListener('click', e => {
 addEventListener('keydown', e => {
   const quizOpen = quizEl.classList.contains('open');
   if (e.key === 'Escape') { if (quizOpen) { closeQuiz(); return; } back(); }
-  if (quizOpen) return;
+  if (quizOpen) {
+    const qn = parseInt(e.key);
+    if (qn >= 1 && qn <= 4) qA.children[qn - 1]?.click();
+    return;
+  }
   const n = parseInt(e.key);
   if (selected === -1 && n >= 1 && n <= 4) select(n - 1);
 });
@@ -783,9 +796,12 @@ function select(i) {
     pos.y += Math.abs(Math.sin(k * Math.PI * 4)) * 0.03;   // footsteps
     camera.position.copy(pos);
     camera.lookAt(doorX, doorY, -3);
+    // the doorway light recedes as you cross the threshold — no white-out
+    gapMats[i].opacity = Math.min(gapMats[i].opacity, 0.65 * (1 - k * 0.85));
   }, { delay: 2400, ease: easeInOut });
 
-  setTimeout(() => document.getElementById('flare').classList.add('on'), 3050);
+  // step into the dark — scene fades to black as you cross the threshold
+  setTimeout(() => document.getElementById('flare').classList.add('on'), 2850);
   setTimeout(() => {
     const d = document.getElementById('dossier');
     const hero = d.querySelector('.d-hero');
@@ -809,7 +825,8 @@ function select(i) {
     document.body.classList.add('in-dossier');
     document.getElementById('d-back').style.display = 'block';
     setTimeout(() => d.classList.add('shown'), 40);
-    document.getElementById('flare').classList.remove('on');
+    // then the room lights come up — black veil lifts to reveal the dossier
+    setTimeout(() => document.getElementById('flare').classList.remove('on'), 250);
     dVideo.play().catch(() => {});
     // fallback descend if the beat video is missing / can't play
     descendTimer = setTimeout(() => {
@@ -887,11 +904,26 @@ const Sound = (() => {
       o.start(); o.stop(a.currentTime + dur);
     } catch (e) {}
   }
+  // slow hinge creak — detuned saw sweeping down, matches the 1.4s swing
+  function creak() {
+    try {
+      const a = ac(), o = a.createOscillator(), g = a.createGain(), f = a.createBiquadFilter();
+      o.type = 'sawtooth';
+      o.frequency.setValueAtTime(94, a.currentTime);
+      o.frequency.exponentialRampToValueAtTime(52, a.currentTime + 1.3);
+      f.type = 'bandpass'; f.frequency.value = 300; f.Q.value = 9;
+      g.gain.setValueAtTime(0.0001, a.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.045, a.currentTime + 0.25);
+      g.gain.exponentialRampToValueAtTime(0.0001, a.currentTime + 1.35);
+      o.connect(f); f.connect(g); g.connect(a.destination);
+      o.start(); o.stop(a.currentTime + 1.4);
+    } catch (e) {}
+  }
   return {
     hover: () => blip(660, 0.08, 0.025),
     select: () => blip(330, 0.5, 0.06),
     back: () => blip(220, 0.3, 0.05),
-    door: () => { blip(140, 0.9, 0.05); setTimeout(() => blip(520, 0.25, 0.03), 500); },
+    door: () => { blip(140, 0.9, 0.05); creak(); setTimeout(() => blip(520, 0.25, 0.03), 500); },
   };
 })();
 
