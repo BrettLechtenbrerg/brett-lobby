@@ -37,6 +37,18 @@ body.in-dossier { overflow: hidden; }
 }
 #title h1 { font-family: 'Cormorant Garamond', serif; font-weight: 500; font-size: clamp(26px, 3.4vw, 44px); letter-spacing: 0.01em; }
 #title p { margin-top: 8px; font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 0.32em; text-transform: uppercase; color: var(--dim); }
+#hint {
+  margin-top: 16px; font-family: 'DM Mono', monospace; font-size: 12px;
+  letter-spacing: 0.18em; text-transform: uppercase; color: #E9C767;
+  animation: hint-fade 3.2s ease-in-out infinite;
+  transition: opacity 0.6s;
+}
+#hint.gone { opacity: 0; }
+.hint-arrow { display: inline-block; animation: hint-slide 1.6s ease-in-out infinite; }
+.hint-arrow:last-child { animation-name: hint-slide-r; }
+@keyframes hint-fade { 0%, 100% { opacity: 0.65; } 50% { opacity: 1; } }
+@keyframes hint-slide { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(-6px); } }
+@keyframes hint-slide-r { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(6px); } }
 
 #bottom-bar {
   position: fixed; bottom: 26px; left: 50%; transform: translateX(-50%); z-index: 20;
@@ -70,6 +82,12 @@ body.in-dossier { overflow: hidden; }
 #p-power { margin-top: 10px; font-size: 14px; line-height: 1.55; color: var(--dim); }
 #p-stats { margin-top: 14px; display: flex; flex-direction: column; gap: 5px; }
 .p-stat { font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 0.06em; color: var(--accent); opacity: 0.85; }
+#p-enter {
+  margin-top: 16px; display: inline-block;
+  font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 0.22em; text-transform: uppercase;
+  color: var(--bg); background: var(--accent); border-radius: 20px; padding: 8px 16px;
+  animation: hint-fade 1.6s ease-in-out infinite;
+}
 
 /* ---------- quiz pill + overlay ---------- */
 #quiz-pill {
@@ -219,6 +237,7 @@ body.in-dossier #quiz-pill { display: none; }
 <div id="title">
   <h1>Choose who you need.</h1>
   <p>Four versions &nbsp;&middot;&nbsp; One Brett</p>
+  <div id="hint"><span class="hint-arrow">&larr;</span> click a door to step inside <span class="hint-arrow">&rarr;</span></div>
 </div>
 
 <div id="plate">
@@ -226,6 +245,7 @@ body.in-dossier #quiz-pill { display: none; }
   <div id="p-class"></div>
   <div id="p-power"></div>
   <div id="p-stats"></div>
+  <div id="p-enter">click to enter &rarr;</div>
 </div>
 
 <button id="quiz-pill">Not sure which Brett can help you the most? <span>Take the 60-second quiz →</span></button>
@@ -654,6 +674,7 @@ addEventListener('mousemove', e => {
   }
 });
 
+const hintEl = document.getElementById('hint');
 addEventListener('click', e => {
   if (selected !== -1) return;
   if (e.target !== renderer.domElement) return;
@@ -799,6 +820,7 @@ scrollCue.addEventListener('click', () => {
 function select(i) {
   selected = i;
   cine = true;
+  hintEl.classList.add('gone'); // they know how it works now
   Sound.select();
   fadeMusic(0, 550);
   plateEl.classList.remove('show');
@@ -968,10 +990,11 @@ function tick() {
   requestAnimationFrame(tick);
   const t = clock.getElapsedTime();
 
-  // idle bob + hover brightness
+  // idle bob + breathing frame glow (invites the click) + hover brightness
   paneGroups.forEach((g, i) => {
     g.position.y = PANE_Y + Math.sin(t * 0.8 + i * 1.7) * 0.015;
-    const target = (i === hovered && selected === -1) ? 0.55 : 0.1;
+    const breathe = 0.18 + Math.sin(t * 1.6 + i * 0.9) * 0.12; // 0.06→0.30 slow pulse
+    const target = (i === hovered && selected === -1) ? 0.7 : breathe;
     paneMats[i].frameMat.opacity += (target - paneMats[i].frameMat.opacity) * 0.1;
   });
 
