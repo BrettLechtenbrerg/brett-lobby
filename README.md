@@ -1,5 +1,8 @@
 # Brett Lechtenberg — The Lobby
 
+**Live:** https://brett-lobby.vercel.app
+**Repo:** https://github.com/BrettLechtenbrerg/brett-lobby
+
 Character-select home screen (inspired by adandelacruz.com). Standalone project —
 does NOT touch the live brettlechtenberg.com site.
 
@@ -35,7 +38,8 @@ All persona copy is REAL (sourced from brettlechtenberg.com). Tweak freely.
 |-----------------------|--------|---------------------------------------------------------|------|
 | `lobby.jpg`           | ✅ DONE (AI-generated high-rise dojo) | Background plate | 16:10, dark |
 | `{key}-hero.jpg`      | ✅ DONE (AI-generated, all 4) | Dossier hero backdrop / video poster | 16:9 |
-| `{key}-idle.mp4`      | ⏳ needs Brett footage | Looping "alive" clip per persona (in the pane) | 3–8s loop, vertical ~1:3 crop OK, <5 MB, muted |
+| `{key}-still.png`     | ✅ DONE (real photos of Brett, composited) | Photo panel shown in each door until video exists | tall 1:4.26 |
+| `{key}-idle.mp4`      | ⏳ needs Brett footage | Looping "alive" clip per persona (replaces still) | 3–8s loop, vertical ~1:3 crop OK, <5 MB, muted |
 | `{key}-beat.mp4`      | ⏳ needs Brett footage | Short intro/clone video per persona (dossier) | 6–12s, landscape 16:9, <4 MB |
 | `ambient-music.mp3`   | ⏳ pick a track | Lobby ambience (home screen only) | loopable, quiet |
 
