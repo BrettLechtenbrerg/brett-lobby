@@ -71,6 +71,56 @@ body.in-dossier { overflow: hidden; }
 #p-stats { margin-top: 14px; display: flex; flex-direction: column; gap: 5px; }
 .p-stat { font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 0.06em; color: var(--accent); opacity: 0.85; }
 
+/* ---------- quiz pill + overlay ---------- */
+#quiz-pill {
+  position: fixed; bottom: 92px; left: 50%; transform: translateX(-50%); z-index: 20;
+  background: rgba(10, 8, 8, 0.55); border: 1px solid rgba(212, 175, 55, 0.35);
+  color: var(--dim); border-radius: 30px; padding: 10px 22px; cursor: pointer;
+  font-family: 'DM Sans', sans-serif; font-size: 13px; backdrop-filter: blur(12px);
+  transition: border-color 0.3s, color 0.3s;
+}
+#quiz-pill span { color: var(--accent); font-weight: 700; }
+#quiz-pill:hover { border-color: var(--accent); color: var(--text); }
+body.in-dossier #quiz-pill { display: none; }
+#quiz {
+  position: fixed; inset: 0; z-index: 60; display: none;
+  align-items: center; justify-content: center;
+  background: rgba(7, 6, 7, 0.82); backdrop-filter: blur(10px);
+}
+#quiz.open { display: flex; }
+.q-box {
+  position: relative; width: min(560px, 92vw);
+  background: #0E0C0E; border: 1px solid rgba(237, 233, 225, 0.12);
+  border-radius: 18px; padding: 42px 44px 38px;
+}
+.q-close {
+  position: absolute; top: 14px; right: 18px; background: none; border: none;
+  color: var(--dim); font-size: 26px; cursor: pointer; line-height: 1;
+}
+.q-close:hover { color: var(--text); }
+.q-eyebrow { font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 0.24em; color: var(--accent); text-transform: uppercase; }
+.q-step { margin-top: 10px; font-family: 'DM Mono', monospace; font-size: 11px; color: var(--dim); }
+.q-box h2 { font-family: 'Cormorant Garamond', serif; font-weight: 500; font-size: 28px; line-height: 1.25; margin: 10px 0 22px; }
+#q-answers { display: grid; gap: 10px; }
+#q-answers button {
+  text-align: left; background: rgba(237, 233, 225, 0.04); color: #C9C4BA;
+  border: 1px solid rgba(237, 233, 225, 0.12); border-radius: 10px;
+  padding: 14px 18px; font-family: 'DM Sans', sans-serif; font-size: 14.5px; cursor: pointer;
+  transition: border-color 0.2s, color 0.2s, transform 0.2s;
+}
+#q-answers button:hover { border-color: var(--accent); color: var(--text); transform: translateX(4px); }
+#q-result p { color: var(--dim); margin: 6px 0 24px; }
+.q-go {
+  background: var(--accent); color: var(--bg); border: none; border-radius: 30px;
+  padding: 13px 28px; font-weight: 700; font-size: 14px; cursor: pointer;
+}
+.q-again {
+  background: none; border: none; color: var(--dim); font-size: 13px;
+  margin-left: 14px; cursor: pointer; text-decoration: underline;
+}
+.q-alt { margin-top: 26px !important; font-size: 12.5px; }
+.q-alt a { color: var(--accent); }
+
 /* ---------- lens flare ---------- */
 #flare {
   position: fixed; inset: 0; z-index: 40; background: #fff; opacity: 0; pointer-events: none;
@@ -147,6 +197,26 @@ body.in-dossier { overflow: hidden; }
   <div id="p-class"></div>
   <div id="p-power"></div>
   <div id="p-stats"></div>
+</div>
+
+<button id="quiz-pill">Not sure which Brett can help you the most? <span>Take the 60-second quiz →</span></button>
+
+<div id="quiz">
+  <div class="q-box">
+    <button class="q-close" aria-label="Close quiz">×</button>
+    <div class="q-eyebrow">// diagnostic</div>
+    <div class="q-step" id="q-step"></div>
+    <h2 id="q-question"></h2>
+    <div id="q-answers"></div>
+    <div id="q-result" style="display:none;">
+      <div class="q-eyebrow" id="qr-eyebrow"></div>
+      <h2 id="qr-name"></h2>
+      <p id="qr-line"></p>
+      <button class="q-go" id="qr-go">Open the door →</button>
+      <button class="q-again" id="qr-again">Retake</button>
+      <p class="q-alt">Diagnosing a whole team? <a href="https://www.brettlechtenberg.com/rockstar-team-quiz" target="_blank" rel="noopener">Take the full Rockstar Team Quiz →</a></p>
+    </div>
+  </div>
 </div>
 
 <div id="bottom-bar">
@@ -435,7 +505,12 @@ CLASSES.forEach((cls, i) => {
   const doorPivot = new THREE.Group();
   doorPivot.position.x = hingeSide * (PANE_W / 2);
   const mat = new THREE.MeshBasicMaterial({ map: placeholderTexture(cls, i), transparent: true, side: THREE.DoubleSide });
-  const pane = new THREE.Mesh(new THREE.PlaneGeometry(PANE_W, PANE_H), mat);
+  // slab with real thickness — the lit edge + foreshortening sell the swing
+  const edgeMat = new THREE.MeshBasicMaterial({ color: new THREE.Color(cls.accent).multiplyScalar(0.5) });
+  const pane = new THREE.Mesh(
+    new THREE.BoxGeometry(PANE_W, PANE_H, 0.09),
+    [edgeMat, edgeMat, edgeMat, edgeMat, mat, edgeMat] // front face carries the image
+  );
   pane.position.x = -hingeSide * (PANE_W / 2);
   doorPivot.add(pane);
   group.add(doorPivot);
@@ -555,14 +630,98 @@ addEventListener('click', e => {
 });
 
 addEventListener('keydown', e => {
-  if (e.key === 'Escape') back();
+  const quizOpen = quizEl.classList.contains('open');
+  if (e.key === 'Escape') { if (quizOpen) { closeQuiz(); return; } back(); }
+  if (quizOpen) return;
   const n = parseInt(e.key);
   if (selected === -1 && n >= 1 && n <= 4) select(n - 1);
 });
 
+/* ---------- "which Brett" quiz ---------- */
+const QUIZ = [
+  { q: 'What are you trying to level up right now?',
+    a: [['An upcoming event, conference, or kickoff', 0],
+        ['My own performance and focus', 1],
+        ['My thinking — I learn best from books', 2],
+        ['My team\u2019s skills and culture', 3]] },
+  { q: 'What sounds most like what you need?',
+    a: [['Someone who can move a whole room', 0],
+        ['A guide who\u2019s actually done it', 1],
+        ['Frameworks I can study on my own time', 2],
+        ['Hands-on training my people practice live', 3]] },
+  { q: 'Who is this for?',
+    a: [['An audience — dozens to hundreds', 0],
+        ['Just me (or me and my exec team)', 1],
+        ['Me, on my own schedule', 2],
+        ['A department, team, or sales floor', 3]] },
+  { q: 'What does success look like?',
+    a: [['People leave changed — not just entertained', 0],
+        ['Operating in flow, consistently', 1],
+        ['A playbook I can revisit anytime', 2],
+        ['Tools my team uses Monday morning', 3]] },
+];
+const quizEl = document.getElementById('quiz');
+const qQ = document.getElementById('q-question');
+const qA = document.getElementById('q-answers');
+const qStep = document.getElementById('q-step');
+const qResult = document.getElementById('q-result');
+let qIdx = 0, qScores = [0, 0, 0, 0];
+
+function renderQuiz() {
+  const item = QUIZ[qIdx];
+  qStep.textContent = `Question ${qIdx + 1} of ${QUIZ.length}`;
+  qQ.textContent = item.q;
+  qQ.style.display = 'block'; qStep.style.display = 'block';
+  qResult.style.display = 'none';
+  qA.innerHTML = '';
+  item.a.forEach(([label, persona]) => {
+    const b = document.createElement('button');
+    b.textContent = label;
+    b.addEventListener('click', () => {
+      Sound.hover();
+      qScores[persona]++;
+      qIdx++;
+      if (qIdx < QUIZ.length) renderQuiz();
+      else showQuizResult();
+    });
+    qA.appendChild(b);
+  });
+}
+function showQuizResult() {
+  const winner = qScores.indexOf(Math.max(...qScores));
+  const cls = CLASSES[winner];
+  document.documentElement.style.setProperty('--accent', cls.accent);
+  qQ.style.display = 'none'; qStep.style.display = 'none'; qA.innerHTML = '';
+  qResult.style.display = 'block';
+  document.getElementById('qr-eyebrow').textContent = `// your Brett — 0${winner + 1}`;
+  document.getElementById('qr-name').textContent = cls.name;
+  document.getElementById('qr-line').textContent = cls.line;
+  document.getElementById('qr-go').onclick = () => { closeQuiz(); select(winner); };
+}
+function openQuiz() {
+  qIdx = 0; qScores = [0, 0, 0, 0];
+  renderQuiz();
+  quizEl.classList.add('open');
+}
+function closeQuiz() { quizEl.classList.remove('open'); }
+document.getElementById('quiz-pill').addEventListener('click', openQuiz);
+document.querySelector('.q-close').addEventListener('click', closeQuiz);
+quizEl.addEventListener('click', e => { if (e.target === quizEl) closeQuiz(); });
+
 // debug: ?go=1..4 auto-selects a persona (handy while building)
 const goParam = new URLSearchParams(location.search).get('go');
 if (goParam) setTimeout(() => select(Math.min(4, Math.max(1, +goParam)) - 1), 800);
+// debug: ?peek=1..4 freezes the door half-open at the beat-2 camera position
+const peekParam = new URLSearchParams(location.search).get('peek');
+if (peekParam) {
+  const i = Math.min(4, Math.max(1, +peekParam)) - 1;
+  cine = true;
+  const doorX = PANE_X[i], doorY = PANE_Y + 0.4;
+  const side = doorX < 0 ? 1 : -1;
+  doorPivots[i].pivot.rotation.y = doorPivots[i].dir * 0.75; // ~half open
+  gapMats[i].opacity = 0.25;
+  setInterval(() => { camera.position.set(doorX + side * 2.4, doorY, 7.2); camera.lookAt(doorX + side * (i === 0 || i === 3 ? 1.9 : 1.1), doorY, 0); }, 16);
+}
 
 /* ---------- dossier ---------- */
 let descendTimer = null;
@@ -589,33 +748,36 @@ function select(i) {
   const doorX = PANE_X[i], doorY = PANE_Y + 0.4;
   const p0 = camera.position.clone();
   const pv = doorPivots[i].pivot, dir = doorPivots[i].dir;
+  // stop OFF-AXIS (toward lobby center) so the swing reads in perspective,
+  // far enough back that the full door + frame stay in view while it opens
+  const side = doorX < 0 ? 1 : -1;
+  const stopPos = new THREE.Vector3(doorX + side * 2.4, doorY, 7.2);
+  const lookX = doorX + side * (i === 0 || i === 3 ? 1.9 : 1.1); // bias toward lobby center — outer doors need more to avoid the backdrop edge
 
-  // BEAT 1 (0–800ms) — walk up to the door and STOP, framing it
+  // BEAT 1 (0–800ms) — walk up to the door and STOP at an angle, framing it
   tween(800, k => {
-    camera.position.lerpVectors(p0, new THREE.Vector3(doorX, doorY, 3.6), k);
-    camera.lookAt(doorX, doorY, 0);
+    camera.position.lerpVectors(p0, stopPos, k);
+    camera.lookAt(lookX, doorY, 0);
   });
 
-  // BEAT 2 (900–2200ms) — camera holds still; the door swings open slowly,
-  // accent light cracking through and flooding out as it opens
-  tween(1300, k => {
-    pv.rotation.y = dir * -1.5 * k;              // 0 → ~86° swing
-    gapMats[i].opacity = Math.min(0.95, k * 1.2); // light floods the doorway
+  // BEAT 2 (900–2300ms) — camera holds still; the slab swings TOWARD the viewer,
+  // its lit edge sweeping through the frame; light builds only after it cracks open
+  tween(1400, k => {
+    pv.rotation.y = dir * 1.5 * k;                       // swing out toward the camera
+    gapMats[i].opacity = Math.max(0, k - 0.35) * 0.65;    // glow only once visibly open
   }, { delay: 900 });
   setTimeout(() => Sound.door(), 900);
 
-  // BEAT 3 (2300–3200ms) — walk THROUGH the open doorway, gentle footstep bob
+  // BEAT 3 (2400–3300ms) — walk THROUGH the open doorway, gentle footstep bob
   tween(900, k => {
-    const z = 3.6 + (0.4 - 3.6) * k;
-    camera.position.set(
-      doorX + Math.sin(k * Math.PI * 3) * 0.04,   // subtle sway
-      doorY + Math.abs(Math.sin(k * Math.PI * 4)) * 0.03, // footsteps
-      z
-    );
+    const pos = new THREE.Vector3().lerpVectors(stopPos, new THREE.Vector3(doorX, doorY, 0.4), k);
+    pos.x += Math.sin(k * Math.PI * 3) * 0.04;             // subtle sway
+    pos.y += Math.abs(Math.sin(k * Math.PI * 4)) * 0.03;   // footsteps
+    camera.position.copy(pos);
     camera.lookAt(doorX, doorY, -3);
-  }, { delay: 2300, ease: easeInOut });
+  }, { delay: 2400, ease: easeInOut });
 
-  setTimeout(() => document.getElementById('flare').classList.add('on'), 2950);
+  setTimeout(() => document.getElementById('flare').classList.add('on'), 3050);
   setTimeout(() => {
     const d = document.getElementById('dossier');
     const hero = d.querySelector('.d-hero');
@@ -645,7 +807,7 @@ function select(i) {
     descendTimer = setTimeout(() => {
       document.getElementById('dossier').scrollTo({ top: innerHeight * 0.92, behavior: 'smooth' });
     }, 6500);
-  }, 3300);
+  }, 3400);
 }
 
 function back() {
