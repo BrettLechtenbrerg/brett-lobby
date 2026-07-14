@@ -51,8 +51,13 @@ Pages: `index.html` (lobby) · `about.html` · `speaking.html` · `training.html
 | 4 | `trainer` | The Corporate Trainer  | Silver    | white shirt + navy vest |
 
 Outfits 2–4 are AI-edited (gpt-image-2) from the same original photo — face/pose identical.
-The Author persona was retired July 2026 (people hire the AI strategist, not the author);
-its assets (`author-*`) and `source-assets/brett-author-outfit*.png` are kept for possible return.
+
+### Legacy rooms — "The Foundation" (edit `LEGACY` array)
+
+The Author (gold) and The Sensei (red) moved off the main wall July 2026. They live in
+a shared overlay reachable two ways: the **"// the back hallway →"** pill (bottom-right)
+and the **elevator panel** (mid-right, G/B1). Same dossier system; back button returns
+to the hallway. On mobile the hallway link sits under the quiz button.
 
 ## Assets
 

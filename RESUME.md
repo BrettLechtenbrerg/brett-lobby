@@ -18,8 +18,10 @@ for Brett Lechtenberg, inspired by adandelacruz.com.
 - **Stack:** single-file `index.html` (Three.js r128 CDN, all CSS/JS inline),
   interior pages share `site.css`. No build step. Read README.md first.
 
-State (July 14, 2026, v1.2 — Door 3 is now The AI Strategist, teal accent, silver-bomber
-outfit, matching ai-hero.jpg; Author persona retired but assets kept): walk-through door cinematic (3 beats + creak + fade-to-black
+State (July 14, 2026, v1.3 — Door 3 is The AI Strategist, teal accent, silver-bomber
+outfit, matching ai-hero.jpg. Author + Sensei live in "The Foundation" legacy overlay,
+reachable via the back-hallway pill AND the elevator G/B1 panel — both entrances kept
+for now, pick one after user feedback. Hint pill returns on back-to-lobby): walk-through door cinematic (3 beats + creak + fade-to-black
 threshold), DOOR 1–4 labels, idle door-crack animation, uniform-size door photos with
 distinct AI-edited outfits, "which Brett" quiz (lobby pill + dossier links), mid-screen
 pulsing hint, top-pinned dossiers with scroll cue, face favicon, full mobile support

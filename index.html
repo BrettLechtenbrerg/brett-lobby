@@ -164,6 +164,66 @@ body.in-dossier #quiz-pill { display: none; }
 }
 .d-quiz-link:hover { color: var(--accent); }
 
+/* ---------- back hallway + elevator (legacy rooms) ---------- */
+#hall-pill {
+  position: fixed; bottom: 34px; right: 34px; z-index: 20;
+  background: rgba(10, 8, 8, 0.5); border: 1px solid rgba(237, 233, 225, 0.14);
+  color: var(--dim); border-radius: 30px; padding: 10px 20px; cursor: pointer;
+  font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 0.16em;
+  text-transform: uppercase; backdrop-filter: blur(8px); transition: color 0.25s, border-color 0.25s;
+}
+#hall-pill:hover { color: #E9C767; border-color: rgba(212, 175, 55, 0.55); }
+body.in-dossier #hall-pill { display: none; }
+#elevator {
+  position: fixed; top: 50%; right: 30px; transform: translateY(-50%); z-index: 20;
+  display: flex; flex-direction: column; align-items: center; gap: 9px;
+  background: rgba(10, 8, 8, 0.5); border: 1px solid rgba(237, 233, 225, 0.12);
+  border-radius: 14px; padding: 14px 11px; backdrop-filter: blur(8px);
+}
+#elevator .ev-label { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--dim); }
+.ev-btn {
+  width: 36px; height: 36px; border-radius: 50%; cursor: pointer;
+  font-family: 'DM Mono', monospace; font-size: 12px; letter-spacing: 0.04em;
+  background: none; border: 1px solid rgba(237, 233, 225, 0.2); color: var(--dim);
+  transition: all 0.25s;
+}
+.ev-btn.on { border-color: rgba(212, 175, 55, 0.8); color: #E9C767; box-shadow: 0 0 14px rgba(212, 175, 55, 0.25); }
+.ev-btn:hover { border-color: #E9C767; color: #E9C767; }
+body.in-dossier #elevator { display: none; }
+#hallway {
+  position: fixed; inset: 0; z-index: 25; display: none;
+  overflow-y: auto; -webkit-overflow-scrolling: touch;
+  background: radial-gradient(ellipse 120% 90% at 50% -10%, #17120E 0%, #0B0809 55%, #070607 100%);
+  opacity: 0; transition: opacity 0.6s;
+}
+#hallway.visible { display: block; }
+#hallway.shown { opacity: 1; }
+.hw-inner { min-height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 60px 22px; }
+.hw-eyebrow { font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 0.24em; text-transform: uppercase; color: #E9C767; }
+.hw-inner h1 { font-family: 'Cormorant Garamond', serif; font-weight: 500; font-size: clamp(28px, 3.4vw, 46px); margin-top: 14px; }
+.hw-sub { margin-top: 10px; font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 0.26em; text-transform: uppercase; color: var(--dim); }
+#hw-doors { margin-top: 44px; display: flex; flex-wrap: wrap; gap: 26px; justify-content: center; }
+.hw-door {
+  position: relative; width: min(230px, 42vw); aspect-ratio: 3 / 5;
+  border-radius: 14px; overflow: hidden; cursor: pointer;
+  border: 1px solid rgba(237, 233, 225, 0.16);
+  background-size: cover; background-position: center 82%;
+  transition: transform 0.35s, border-color 0.35s, box-shadow 0.35s;
+  -webkit-tap-highlight-color: transparent;
+}
+.hw-door:hover { transform: translateY(-6px); }
+.hw-door::after { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(7,6,7,0.15) 0%, rgba(7,6,7,0) 40%, rgba(7,6,7,0.82) 100%); }
+.hw-tag { position: absolute; top: 14px; left: 16px; z-index: 1; font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; }
+.hw-name { position: absolute; bottom: 40px; left: 16px; right: 16px; z-index: 1; font-family: 'Cormorant Garamond', serif; font-size: 24px; text-align: left; }
+.hw-enter { position: absolute; bottom: 16px; left: 16px; z-index: 1; font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; }
+.hw-back {
+  margin-top: 46px; background: none; cursor: pointer;
+  border: 1px solid rgba(237, 233, 225, 0.18); background: rgba(10, 8, 8, 0.6);
+  color: var(--text); border-radius: 30px; padding: 10px 22px;
+  font-family: 'DM Mono', monospace; font-size: 12px; letter-spacing: 0.14em;
+}
+.hw-back:hover { border-color: #E9C767; color: #E9C767; }
+
 /* ---------- threshold fade (crossing into the room) ---------- */
 #flare {
   position: fixed; inset: 0; z-index: 40; background: #070607; opacity: 0; pointer-events: none;
@@ -262,7 +322,7 @@ body.in-dossier #quiz-pill { display: none; }
    (in-app browsers like Messenger/Instagram often open landscape + very short) */
 @media (orientation: portrait) and (max-width: 820px), (orientation: landscape) and (max-height: 480px) {
   #mobile-lobby { display: block; }
-  canvas, #title, #hint, #plate, #quiz-pill, #bottom-bar, #hud-top { display: none !important; }
+  canvas, #title, #hint, #plate, #quiz-pill, #bottom-bar, #hud-top, #hall-pill, #elevator { display: none !important; }
   .d-hero { height: 86vh; }
   .d-hero-text { bottom: 44px; left: 22px; right: 22px; }
   .d-body { padding: 60px 22px 110px; }
@@ -302,6 +362,23 @@ body.in-dossier #quiz-pill { display: none; }
 </div>
 
 <button id="quiz-pill">Not sure which Brett can help you the most? <span>Take the 60-second quiz →</span></button>
+
+<button id="hall-pill">// the back hallway →</button>
+<div id="elevator">
+  <span class="ev-label">elev</span>
+  <button class="ev-btn on" id="ev-g" aria-label="Ground floor">G</button>
+  <button class="ev-btn" id="ev-b1" aria-label="Basement — The Foundation">B1</button>
+</div>
+
+<div id="hallway">
+  <div class="hw-inner">
+    <div class="hw-eyebrow" id="hw-eyebrow">// the back hallway</div>
+    <h1>The rooms that built the others.</h1>
+    <div class="hw-sub">Two more doors &nbsp;&middot;&nbsp; Same Brett</div>
+    <div id="hw-doors"></div>
+    <button class="hw-back" id="hw-back">&larr; back to the lobby</button>
+  </div>
+</div>
 
 <div id="quiz">
   <div class="q-box">
@@ -411,6 +488,25 @@ const CLASSES = [
     stats: [['4 Workshops', 'culture · AI · time · sales'], ['Hands-On', 'build it before you leave'], ['90 min', 'to multi-phase programs']],
     engage: 'Booking half-day and full-day trainings. Tell Brett the problem you\'re solving — he\'ll tell you honestly if he\'s the right fit. Start with the free Rockstar Team Quiz.' },
 ];
+
+/* Legacy rooms — reachable through the back hallway / elevator B1, not the main wall */
+const LEGACY = [
+  { key: 'author', name: 'The Author', accent: '#E8C84A', auraRGB: '232,200,74',
+    power: 'Teaches what he\'s tested. Writes what he\'s lived.',
+    line: 'Seven books. Five bestsellers.',
+    aboutH: 'Ideas that have helped thousands.',
+    about: 'Seven books, five bestsellers — including three #1 Amazon bestsellers. Reclaiming The Clock on time and focus; The Anti-Bully Program and The Anti-Cyber Bully Program, nationally recognized and featured in USA Today; The Ultimate Travel Safety Program; Protecting Your Castle; and Bullyproof. The seventh — The Master\'s Edge, the definitive guide to his peak performance methodology — is forthcoming. As seen on Good Things Utah, Channel 4, Channel 13, and The Daily Dish.',
+    stats: [['7 Books', '5 bestsellers'], ['#1 Amazon', 'three times'], ['USA Today', 'national coverage']],
+    engage: 'Media appearances, podcast interviews, and bulk orders for teams. Start with the free one — How to Build a Rockstar Team. The books are the door; walk through it.' },
+  { key: 'sensei', name: 'The Sensei', accent: '#C0392B', auraRGB: '192,57,43',
+    power: 'Every other Brett was built in this room.',
+    line: 'Martial arts mastery — 30+ years on the mat.',
+    aboutH: 'Where the method was forged.',
+    about: 'Before the keynotes, the coaching, and the AI workflows, there was the mat. Brett has spent 30+ years in the martial arts — building Personal Mastery Martial Arts in Utah, coaching students from first bow to black belt, and turning the dojo\'s progressive mastery framework into the Master\'s Edge methodology. His nationally recognized Anti-Bully and Anti-Cyber Bully programs came out of this room too. The dojo is where he learned the truth he teaches everywhere else: mastery is built, not born.',
+    stats: [['30+', 'years on the mat'], ['Black Belt', 'progressive mastery framework'], ['Bullyproof', 'nationally recognized programs']],
+    engage: 'Martial arts training, self-defense workshops, and anti-bully programs for schools, families, and teams. This is the room people don\'t expect — and the one that explains all the others.' },
+];
+const getCls = i => i < CLASSES.length ? CLASSES[i] : LEGACY[i - CLASSES.length];
 
 /* ---------- scene constants ---------- */
 // Panel UVs measured from assets/lobby.jpg glass doors (brightness-run detection)
@@ -745,7 +841,11 @@ addEventListener('click', e => {
 
 addEventListener('keydown', e => {
   const quizOpen = quizEl.classList.contains('open');
-  if (e.key === 'Escape') { if (quizOpen) { closeQuiz(); return; } back(); }
+  if (e.key === 'Escape') {
+    if (quizOpen) { closeQuiz(); return; }
+    if (selected !== -1) { back(); return; }
+    if (hallEl.classList.contains('visible')) closeHall();
+  }
   if (quizOpen) {
     const qn = parseInt(e.key);
     if (qn >= 1 && qn <= 4) qA.children[qn - 1]?.click();
@@ -879,7 +979,7 @@ scrollCue.addEventListener('click', () => {
 const MQ_MOBILE = matchMedia('(orientation: portrait) and (max-width: 820px), (orientation: landscape) and (max-height: 480px)');
 
 function openDossier(i) {
-  const cls = CLASSES[i];
+  const cls = getCls(i);
   const d = document.getElementById('dossier');
   const hero = d.querySelector('.d-hero');
   hero.style.backgroundImage = `url(assets/${cls.key}-hero.jpg)`;
@@ -889,7 +989,10 @@ function openDossier(i) {
   dVideo.src = `assets/${cls.key}-beat.mp4`;
   dVideo.poster = `assets/${cls.key}-hero.jpg`;
   dVideo.loop = false;
-  document.getElementById('d-eyebrow').textContent = `// door ${i + 1} — dossier`;
+  document.getElementById('d-eyebrow').textContent =
+    i < CLASSES.length ? `// door ${i + 1} — dossier` : '// the back hallway — dossier';
+  document.getElementById('d-back').innerHTML =
+    i < CLASSES.length ? '&larr; back to the lobby' : '&larr; back to the hallway';
   document.getElementById('d-class').textContent = cls.reveal || cls.name;
   document.getElementById('d-line').textContent = cls.line;
   document.getElementById('d-about-h').textContent = cls.aboutH;
@@ -914,8 +1017,15 @@ function select(i) {
   Sound.select();
   fadeMusic(0, 550);
   plateEl.classList.remove('show');
-  const cls = CLASSES[i];
+  const cls = getCls(i);
   document.documentElement.style.setProperty('--accent', cls.accent);
+
+  // legacy rooms live off the hallway — no 3D door on the main wall, quick fade in
+  if (i >= CLASSES.length) {
+    document.getElementById('flare').classList.add('on');
+    setTimeout(() => openDossier(i), 500);
+    return;
+  }
 
   // mobile portrait: no 3D walk-through — quick fade straight into the dossier
   if (MQ_MOBILE.matches) {
@@ -978,6 +1088,12 @@ CLASSES.forEach((cls, i) => {
   mlCards.appendChild(card);
 });
 document.getElementById('ml-quiz').addEventListener('click', openQuiz);
+const mlHall = document.createElement('button');
+mlHall.id = 'ml-hall';
+mlHall.textContent = '// the back hallway →';
+mlHall.style.cssText = 'display:block;margin:16px auto 0;background:none;border:none;color:var(--dim);font-family:"DM Mono",monospace;font-size:11px;letter-spacing:0.16em;text-transform:uppercase;cursor:pointer;padding:8px;';
+document.getElementById('ml-quiz').after(mlHall);
+mlHall.addEventListener('click', () => openHall('hallway'));
 
 function back() {
   if (selected === -1) return;
@@ -989,6 +1105,11 @@ function back() {
   document.body.classList.remove('in-dossier');
   document.getElementById('d-back').style.display = 'none';
   setTimeout(() => d.classList.remove('visible'), 900);
+  // legacy room → land back in the hallway (still open underneath), no 3D door to close
+  if (selected >= CLASSES.length) {
+    selected = -1;
+    return;
+  }
   // close the door behind you
   const pv = doorPivots[selected].pivot, gm = gapMats[selected];
   const r0 = pv.rotation.y, g0 = gm.opacity;
@@ -1000,6 +1121,50 @@ function back() {
   hintEl.classList.remove('gone'); // welcome back — remind them the doors open
 }
 document.getElementById('d-back').addEventListener('click', back);
+
+/* ---------- back hallway / elevator B1 (legacy rooms) ---------- */
+const hallEl = document.getElementById('hallway');
+const evG = document.getElementById('ev-g'), evB1 = document.getElementById('ev-b1');
+const hwDoors = document.getElementById('hw-doors');
+LEGACY.forEach((cls, k) => {
+  const i = CLASSES.length + k;
+  const door = document.createElement('div');
+  door.className = 'hw-door';
+  door.style.backgroundImage = `url(assets/${cls.key}-still.png)`;
+  // sensei still is an older portrait crop — face sits mid-frame, not at the baseline
+  if (cls.key === 'sensei') door.style.backgroundPosition = 'center 42%';
+  door.style.borderColor = `rgba(${cls.auraRGB}, 0.4)`;
+  door.innerHTML = `
+    <div class="hw-tag" style="color:${cls.accent}">room ${k + 1}</div>
+    <div class="hw-name">${cls.name}</div>
+    <div class="hw-enter" style="color:${cls.accent}">enter →</div>`;
+  door.addEventListener('mouseenter', () => {
+    door.style.boxShadow = `0 18px 50px rgba(${cls.auraRGB}, 0.22)`;
+    Sound.hover();
+  });
+  door.addEventListener('mouseleave', () => { door.style.boxShadow = 'none'; });
+  door.addEventListener('click', () => { if (selected === -1) select(i); });
+  hwDoors.appendChild(door);
+});
+
+function openHall(mode) {
+  document.getElementById('hw-eyebrow').textContent =
+    mode === 'elevator' ? '// elevator — B1 · the foundation' : '// the back hallway';
+  evG.classList.remove('on'); evB1.classList.add('on');
+  hallEl.classList.add('visible');
+  requestAnimationFrame(() => hallEl.classList.add('shown'));
+  Sound.select();
+}
+function closeHall() {
+  evB1.classList.remove('on'); evG.classList.add('on');
+  hallEl.classList.remove('shown');
+  setTimeout(() => hallEl.classList.remove('visible'), 600);
+  Sound.back();
+}
+document.getElementById('hall-pill').addEventListener('click', () => openHall('hallway'));
+evB1.addEventListener('click', () => openHall('elevator'));
+evG.addEventListener('click', closeHall);
+document.getElementById('hw-back').addEventListener('click', closeHall);
 
 /* ---------- ambient music (optional asset) ---------- */
 const bgm = document.getElementById('bgm');
