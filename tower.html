@@ -34,12 +34,23 @@ html, body { height: 100%; overflow: hidden; background: var(--bg); color: var(-
   content: ''; position: absolute; inset: 0;
   background: linear-gradient(180deg, rgba(20, 12, 4, 0) 70%, rgba(10, 6, 3, 0.28) 100%);
 }
+/* figure is ~140% of the window height, anchored at the top — the sill clips him
+   just above the knees so he reads as standing INSIDE the room */
 .win .figure {
-  position: absolute; left: 50%; bottom: 2%; height: 88%; aspect-ratio: var(--fig-ar);
+  position: absolute; left: 50%; top: 4%; height: 140%; aspect-ratio: var(--fig-ar);
   transform: translateX(-50%);
-  background-size: contain; background-repeat: no-repeat; background-position: bottom center;
+  background-size: contain; background-repeat: no-repeat; background-position: top center;
   filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.55)) brightness(1.04);
 }
+
+/* window labels — same convention as the lobby doors */
+.win-tag, .win-name {
+  position: absolute; transform: translateX(-50%); z-index: 2;
+  font-family: 'DM Mono', monospace; letter-spacing: 0.2em; text-transform: uppercase;
+  white-space: nowrap; pointer-events: none; text-shadow: 0 1px 8px rgba(0, 0, 0, 0.9);
+}
+.win-tag { font-size: clamp(9px, 0.75vw, 12px); }
+.win-name { font-size: clamp(8px, 0.68vw, 11px); color: #CFC9BD; }
 
 /* ---------- HUD ---------- */
 #hud-top { position: fixed; top: 26px; left: 30px; z-index: 20; font-family: 'DM Mono', monospace; font-size: 12px; letter-spacing: 0.18em; color: var(--accent); transition: opacity 0.5s; }
@@ -225,10 +236,10 @@ const SUITES = [
 
 /* window rects, % of the tower.jpg plate (measured by brightness detection) */
 const WINS = [
-  { left: 41.80, top: 20.21, width: 7.16, height: 15.92 },
-  { left: 50.26, top: 22.56, width: 6.51, height: 14.84 },
-  { left: 59.11, top: 25.20, width: 4.82, height: 13.48 },
-  { left: 66.02, top: 25.10, width: 4.56, height: 11.43 },
+  { left: 41.80, top: 21.78, width: 7.16, height: 9.08 },
+  { left: 50.26, top: 24.02, width: 6.51, height: 8.79 },
+  { left: 59.11, top: 26.17, width: 4.82, height: 8.50 },
+  { left: 66.02, top: 28.42, width: 4.56, height: 7.91 },
 ];
 
 const FIG_AR = { speaker: 228 / 700, coach: 209 / 700, ai: 222 / 700, trainer: 219 / 700 };
@@ -251,6 +262,15 @@ SUITES.forEach((s, i) => {
   el.className = 'win';
   el.style.cssText = `left:${r.left}%; top:${r.top}%; width:${r.width}%; height:${r.height}%;`;
   el.innerHTML = `<div class="figure" style="background-image:url(assets/${s.key}-cut.png); --fig-ar:${FIG_AR[s.key]}"></div>`;
+  const tag = document.createElement('div');
+  tag.className = 'win-tag';
+  tag.style.cssText = `left:${r.left + r.width / 2}%; top:${r.top - 2.6}%; color:${s.accent};`;
+  tag.textContent = `window ${i + 1}`;
+  const name = document.createElement('div');
+  name.className = 'win-name';
+  name.style.cssText = `left:${r.left + r.width / 2}%; top:${r.top + r.height + 1.1}%;`;
+  name.textContent = s.name.replace('The ', '');
+  scene.appendChild(tag); scene.appendChild(name);
   el.addEventListener('mouseenter', () => {
     if (zoomed !== -1) return;
     document.documentElement.style.setProperty('--accent', s.accent);
