@@ -287,7 +287,7 @@ ORDER.forEach(i => {
 });
 
 /* soft two-tone ding (WebAudio, fires on user-gesture-initiated ride) */
-function ding(accentDelayMs) {
+function ding() {
   try {
     const ctx = new (window.AudioContext || window.webkitAudioContext)();
     [[830, 0], [622, 0.18]].forEach(([f, t]) => {
