@@ -47,17 +47,19 @@ Pages: `index.html` (lobby) · `about.html` · `speaking.html` · `training.html
 |---|-----------|------------------------|-----------|----------------|
 | 1 | `speaker` | The Keynote Speaker    | Gold      | dark suit + blue tee (original photo) |
 | 2 | `coach`   | The Performance Coach  | Cranberry | light heather-gray quarter-zip |
-| 3 | `author`  | The Author             | Gold-yellow | camel tweed + cream turtleneck |
+| 3 | `ai`      | The AI Strategist      | Electric teal | silver bomber + white tee + gray trousers |
 | 4 | `trainer` | The Corporate Trainer  | Silver    | white shirt + navy vest |
 
 Outfits 2–4 are AI-edited (gpt-image-2) from the same original photo — face/pose identical.
+The Author persona was retired July 2026 (people hire the AI strategist, not the author);
+its assets (`author-*`) and `source-assets/brett-author-outfit*.png` are kept for possible return.
 
 ## Assets
 
 | File                  | Status | Notes |
 |-----------------------|--------|-------|
 | `assets/lobby.jpg`    | ✅ | AI-generated high-rise dojo plate. If regenerated, re-measure `PANEL_U`/`PANEL_V0`/`PANEL_V1` in `index.html` |
-| `assets/{key}-hero.jpg` | ✅ | Dossier hero backdrops. ⚠️ Still show the OLD blue-tee outfit — regenerate to match new outfits if desired |
+| `assets/{key}-hero.jpg` | ✅ | Dossier hero backdrops. ⚠️ speaker/coach/trainer still show the OLD blue-tee outfit — `ai-hero.jpg` already matches its outfit |
 | `assets/{key}-still.png` | ✅ | Door photo panels, uniform figure size (feet on same baseline) |
 | `assets/favicon-*.png`, `favicon.ico` | ✅ | Face favicon |
 | `assets/ambient-music.mp3` | ✅ | Lobby ambience |
@@ -65,7 +67,7 @@ Outfits 2–4 are AI-edited (gpt-image-2) from the same original photo — face/
 | `assets/{key}-beat.mp4` | ⏳ | Dossier intro/clone video. 6–12s, 16:9, <4 MB |
 | `source-assets/`      | ✅ | ORIGINALS — cutouts + AI outfit variants. Needed to regenerate stills. Do not delete |
 
-`{key}` = speaker / coach / author / trainer. (Old `sensei-*` assets kept in `assets/`.)
+`{key}` = speaker / coach / ai / trainer. (Old `sensei-*` and `author-*` assets kept in `assets/`.)
 
 ## Regenerating the door stills
 

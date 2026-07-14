@@ -18,7 +18,8 @@ for Brett Lechtenberg, inspired by adandelacruz.com.
 - **Stack:** single-file `index.html` (Three.js r128 CDN, all CSS/JS inline),
   interior pages share `site.css`. No build step. Read README.md first.
 
-State (July 13, 2026, v1.1): walk-through door cinematic (3 beats + creak + fade-to-black
+State (July 14, 2026, v1.2 — Door 3 is now The AI Strategist, teal accent, silver-bomber
+outfit, matching ai-hero.jpg; Author persona retired but assets kept): walk-through door cinematic (3 beats + creak + fade-to-black
 threshold), DOOR 1–4 labels, idle door-crack animation, uniform-size door photos with
 distinct AI-edited outfits, "which Brett" quiz (lobby pill + dossier links), mid-screen
 pulsing hint, top-pinned dossiers with scroll cue, face favicon, full mobile support
@@ -26,8 +27,8 @@ pulsing hint, top-pinned dossiers with scroll cue, face favicon, full mobile sup
 media query gates the 3D path; renderer paused on mobile).
 
 Outstanding / next candidates:
-1. `{key}-hero.jpg` dossier backdrops still show Brett's OLD blue-tee outfit —
-   regenerate with gpt-image-2 to match each door's new outfit.
+1. speaker/coach/trainer `{key}-hero.jpg` backdrops still show Brett's OLD blue-tee
+   outfit — regenerate with gpt-image-2 to match each door's outfit (ai-hero.jpg done).
 2. `{key}-idle.mp4` / `{key}-beat.mp4` clone videos not shot yet (specs in README).
 3. Watch quiz-pill pulse annoyance; consider capping at 3 cycles.
 4. Tester feedback loop on door affordance (hint + breathing glow + enter chip).
@@ -42,8 +43,9 @@ never touch the main brettlechtenberg.com site.
 ## How-to: regenerate the four door stills
 
 Sources in `source-assets/` (originals — do not delete):
-`brett-fullbody-nobg.webp` (speaker, transparent), `brett-{coach,author,trainer}-outfit2.png`
+`brett-fullbody-nobg.webp` (speaker, transparent), `brett-{coach,ai,trainer}-outfit2.png`
 (AI outfit variants on black), `brett-headshot-nobg.webp` (favicon source).
+(`brett-author-outfit2.png` kept in case the Author door returns.)
 
 ```bash
 cd ~/brett-lobby && python3 - <<'EOF'
@@ -68,10 +70,10 @@ def extract_figure(path):  # flood-fill near-black bg from edges -> transparent
             if seen[y * W + x]: px[x, y] = (0, 0, 0, 0)
     return im
 
-AURAS = {'speaker': (212,175,55), 'coach': (196,50,74), 'author': (232,200,74), 'trainer': (150,160,155)}
+AURAS = {'speaker': (212,175,55), 'coach': (196,50,74), 'ai': (63,193,201), 'trainer': (150,160,155)}
 SRC = {'speaker': 'source-assets/brett-fullbody-nobg.webp',
        'coach': 'source-assets/brett-coach-outfit2.png',
-       'author': 'source-assets/brett-author-outfit2.png',
+       'ai': 'source-assets/brett-ai-outfit2.png',
        'trainer': 'source-assets/brett-trainer-outfit2.png'}
 W, H = 512, 2180; BASE_Y = int(H * 0.97); MAX_W = int(W * 0.88)
 
