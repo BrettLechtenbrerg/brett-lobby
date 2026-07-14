@@ -302,10 +302,9 @@ function resetCord() {
 }
 
 /* ---------- connect flow ---------- */
-let lastIdx = -1;
 function connect(i, btn) {
   if (connecting || document.body.classList.contains('patched')) return;
-  connecting = true; lastIdx = i;
+  connecting = true;
   document.body.classList.add('connecting');
   const s = SUITES[i];
   document.documentElement.style.setProperty('--accent', s.accent);
