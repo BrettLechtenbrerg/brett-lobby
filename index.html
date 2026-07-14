@@ -997,6 +997,7 @@ function back() {
   selected = -1;
   camTarget = CAM_HOME.clone();
   lookTarget = new THREE.Vector3(0, 0, 0);
+  hintEl.classList.remove('gone'); // welcome back — remind them the doors open
 }
 document.getElementById('d-back').addEventListener('click', back);
 
