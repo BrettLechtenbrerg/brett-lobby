@@ -21,6 +21,19 @@ Debug: `?go=1`..`?go=4` auto-opens a dossier · `?peek=1`..`?peek=4` freezes a d
 Pages: `index.html` (lobby) · `about.html` · `speaking.html` · `training.html` · `books.html` · `contact.html`
 (interior pages share `site.css`; all copy is REAL, pulled from brettlechtenberg.com).
 
+## Concept pages (A/B testing the entry metaphor)
+
+Six standalone single-file concepts, same six personas + dossier content in each:
+
+| | Concept | URL | Metaphor |
+|---|---|---|---|
+| A | Lobby doors | `/` | walk through a 3D door |
+| B | Tower | `/tower` | lit windows at night |
+| C | Character select | `/select` | fighting-game roster |
+| D | Elevator | `/elevator` | brass elevator, floors L–6 |
+| E | BLTV | `/broadcast` | TV studio, channel surfing |
+| F | Switchboard | `/switchboard` | 1940s operator exchange |
+
 ## Current feature set (July 2026, v1.1)
 
 - **3D lobby** (Three.js r128 CDN): background plate, 4 hinged glass doors labeled

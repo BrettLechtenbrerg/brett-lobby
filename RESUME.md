@@ -18,24 +18,45 @@ for Brett Lechtenberg, inspired by adandelacruz.com.
 - **Stack:** single-file `index.html` (Three.js r128 CDN, all CSS/JS inline),
   interior pages share `site.css`. No build step. Read README.md first.
 
-State (July 14, 2026, v1.3 — Door 3 is The AI Strategist, teal accent, silver-bomber
-outfit, matching ai-hero.jpg. Author + Sensei live in "The Foundation" legacy overlay,
-reachable via the back-hallway pill AND the elevator G/B1 panel — both entrances kept
-for now, pick one after user feedback. Hint pill returns on back-to-lobby): walk-through door cinematic (3 beats + creak + fade-to-black
-threshold), DOOR 1–4 labels, idle door-crack animation, uniform-size door photos with
-distinct AI-edited outfits, "which Brett" quiz (lobby pill + dossier links), mid-screen
-pulsing hint, top-pinned dossiers with scroll cue, face favicon, full mobile support
-(portrait 2×2 door cards, short-landscape/in-app browsers 4-across, `MQ_MOBILE`
-media query gates the 3D path; renderer paused on mobile).
+State (July 14, 2026, v1.4 — SIX live concepts, all sharing the same six-persona
+SUITES data + dossier layout, each a standalone single-file page):
+
+| Concept | File / URL | Metaphor |
+|---|---|---|
+| A — Lobby doors | index.html · / | walk through a door (Three.js 3D) |
+| B — Tower | tower.html · /tower | lit windows in a building at night |
+| C — Character select | select.html · /select | fighting-game roster |
+| D — Elevator | elevator.html · /elevator | brass elevator, floors L–6 |
+| E — BLTV | broadcast.html · /broadcast | TV studio, channel surfing |
+| F — Switchboard | switchboard.html · /switchboard | 1940s operator exchange |
+
+Concept notes:
+- D Elevator: "The Brett Lechtenberg Building" brass plaque (plaque-face.png medallion),
+  portrait floor buttons, floors top-down 6 Author / 5 Sensei / 4 Trainer / 3 AI /
+  2 Coach / 1 Speaker (no basement — Sensei moved up per user), stepping indicator,
+  hum + WebAudio ding, keys 1–6/esc.
+- E BLTV: studio control room — physical monitor w/ bezel + stand + ON AIR tally,
+  preview monitor wall (six live hero-jpg feeds), lower-third + ticker inside screen,
+  static burst + hiss on channel change, keys ↑↓/1–6/enter/esc.
+- F Switchboard: "The Lechtenberg Exchange" — wooden cabinet, engraved brass nameplate,
+  centered face chips ({key}-face.png), jack sockets, animated patch cord + ring burr,
+  idle cords onto operator desk, generated exchange-hall.jpg backdrop (source png in
+  source-assets/) with slow lamp-glow breathing.
+- Persona faces: assets/{key}-face.png (auto-centered head chips, script in git history
+  commit a501ac4); assets/plaque-face.png is the branded medallion (full head).
+- index.html (Concept A) unchanged from v1.3: 3D walk-through cinematic, Foundation
+  overlay w/ Author+Sensei, quiz pill, mobile DOM fallback.
 
 Outstanding / next candidates:
-1. speaker/coach/trainer `{key}-hero.jpg` backdrops still show Brett's OLD blue-tee
+1. USER DECISION: run testers across all six concepts, watch which one they finish,
+   then promote the winner to / and retire the rest (or keep as easter eggs).
+2. speaker/coach/trainer `{key}-hero.jpg` backdrops still show Brett's OLD blue-tee
    outfit — regenerate with gpt-image-2 to match each door's outfit (ai-hero.jpg done).
-2. `{key}-idle.mp4` / `{key}-beat.mp4` clone videos not shot yet (specs in README).
-3. Watch quiz-pill pulse annoyance; consider capping at 3 cycles.
-4. Tester feedback loop on door affordance (hint + breathing glow + enter chip).
-5. If mobile users report a black screen anyway: likely WebGL blocked — mobile path
+3. `{key}-idle.mp4` / `{key}-beat.mp4` clone videos not shot yet (specs in README).
+4. Watch quiz-pill pulse annoyance; consider capping at 3 cycles.
+5. If mobile users report a black screen on /: likely WebGL blocked — mobile path
    is DOM-only so should be immune, but check the in-app browser involved.
+6. Possible: cross-links between concepts (currently each links back to / only).
 
 Rules: keep edits small, screenshot-verify, commit+push after each accepted change,
 never touch the main brettlechtenberg.com site.
