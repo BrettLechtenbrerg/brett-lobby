@@ -51,6 +51,8 @@ html, body { height: 100%; overflow: hidden; background: var(--bg); color: var(-
 }
 .win-tag { font-size: clamp(9px, 0.75vw, 12px); }
 .win-name { font-size: clamp(8px, 0.68vw, 11px); color: #CFC9BD; }
+.win-tag, .win-name { transition: opacity 0.4s; }
+body.zoomed .win-tag, body.zoomed .win-name { opacity: 0; }
 
 /* ---------- HUD ---------- */
 #hud-top { position: fixed; top: 26px; left: 30px; z-index: 20; font-family: 'DM Mono', monospace; font-size: 12px; letter-spacing: 0.18em; color: var(--accent); transition: opacity 0.5s; }
