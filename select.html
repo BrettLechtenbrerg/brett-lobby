@@ -118,8 +118,9 @@ html, body { height: 100%; overflow: hidden; background: var(--bg); color: var(-
 #lockin:hover { transform: scale(1.05); }
 @keyframes lockpulse { 0%, 100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent) 55%, transparent); } 50% { box-shadow: 0 0 0 12px transparent; } }
 #keys {
-  position: fixed; bottom: 32px; left: min(6vw, 80px); z-index: 10;
+  position: fixed; bottom: 32px; left: min(3vw, 40px); z-index: 10; max-width: 130px;
   font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--dim);
+  display: grid; gap: 7px;
 }
 #keys b { color: var(--text); font-weight: 500; }
 
@@ -170,8 +171,8 @@ body.locked #lockin, body.locked #keys, body.locked #title, body.locked #concept
   #loadout, #keys { display: none; }
   #preview { bottom: 34vh; height: 44vh; }
   #floor { top: 66%; }
-  #roster { bottom: 88px; gap: 9px; width: calc(100% - 32px); justify-content: center; }
-  .card { width: 22.5%; }
+  #roster { bottom: 88px; gap: 9px; width: calc(100% - 32px); justify-content: flex-start; overflow-x: auto; padding: 14px 2px 2px; -webkit-overflow-scrolling: touch; }
+  .card { width: 22.5%; flex: 0 0 auto; }
   .card.active { transform: translateY(-8px); }
   #lockin { right: 16px; left: 16px; bottom: 22px; width: calc(100% - 32px); }
   #title h1 { font-size: 21px; }
@@ -194,7 +195,7 @@ body.locked #lockin, body.locked #keys, body.locked #title, body.locked #concept
 <div id="concept-tag">concept c — <a href="index.html">back to lobby</a></div>
 <div id="title">
   <h1>Select your Brett.</h1>
-  <p>Four builds &nbsp;&middot;&nbsp; One player</p>
+  <p>Six builds &nbsp;&middot;&nbsp; One player</p>
 </div>
 
 <div id="readout">
@@ -211,7 +212,7 @@ body.locked #lockin, body.locked #keys, body.locked #title, body.locked #concept
 
 <div id="roster"></div>
 <button id="lockin">lock in &nbsp;&#9166;</button>
-<div id="keys"><b>&larr;&thinsp;&rarr;</b> browse &nbsp;&nbsp; <b>1&ndash;4</b> jump &nbsp;&nbsp; <b>enter</b> lock in</div>
+<div id="keys"><span><b>&larr;&thinsp;&rarr;</b> browse</span> <span><b>1&ndash;6</b> jump</span> <span><b>enter</b> lock in</span></div>
 
 <div id="flash"></div>
 <div id="fade"></div>
@@ -273,9 +274,27 @@ const SUITES = [
     about: 'Hands-on workshops built on the Master\'s Edge — customized to your team, your industry, and the problem you\'re actually solving. Winning Team Culture. The AI Edge. Reclaiming The Clock. The Honest Close. No off-the-shelf content, no recycled decks.',
     stats: [['4 Workshops', 'culture · AI · time · sales'], ['Hands-On', 'build it before you leave'], ['90 min', 'to multi-phase programs']],
     engage: 'Booking half-day and full-day trainings. Tell Brett the problem you\'re solving — he\'ll tell you honestly if he\'s the right fit.' },
+  { key: 'author', name: 'The Author', accent: '#E8C84A',
+    power: 'Teaches what he\'s tested. Writes what he\'s lived.',
+    line: 'Seven books. Five bestsellers.',
+    bars: [['Storytelling', 94], ['Practical Takeaways', 93], ['Media Ready', 90], ['Signed Copies', 100]],
+    moves: ['7 books · 5 bestsellers', '#1 Amazon bestseller × 3', 'Featured in USA Today'],
+    aboutH: 'Ideas that have helped thousands.',
+    about: 'Seven books, five bestsellers — including three #1 Amazon bestsellers. Reclaiming The Clock on time and focus; The Anti-Bully Program and The Anti-Cyber Bully Program, nationally recognized and featured in USA Today; The Ultimate Travel Safety Program; Protecting Your Castle; and Bullyproof. The seventh — The Master\'s Edge, the definitive guide to his peak performance methodology — is forthcoming.',
+    stats: [['7 Books', '5 bestsellers'], ['#1 Amazon', 'three times'], ['USA Today', 'national coverage']],
+    engage: 'Media appearances, podcast interviews, and bulk orders for teams. Start with the free one — How to Build a Rockstar Team. The books are the door; walk through it.' },
+  { key: 'sensei', name: 'The Sensei', accent: '#C0392B',
+    power: 'Every other Brett was built in this room.',
+    line: 'Martial arts mastery — 30+ years on the mat.',
+    bars: [['Discipline', 99], ['Patience', 95], ['Progressive Mastery', 98], ['Mat Time', 97]],
+    moves: ['30+ years on the mat', 'Personal Mastery Martial Arts', 'Anti-Bully & Anti-Cyber Bully programs'],
+    aboutH: 'Where the method was forged.',
+    about: 'Before the keynotes, the coaching, and the AI workflows, there was the mat. Brett has spent 30+ years in the martial arts — building Personal Mastery Martial Arts in Utah, coaching students from first bow to black belt, and turning the dojo\'s progressive mastery framework into the Master\'s Edge methodology. His nationally recognized Anti-Bully and Anti-Cyber Bully programs came out of this room too. The dojo is where he learned the truth he teaches everywhere else: mastery is built, not born.',
+    stats: [['30+', 'years on the mat'], ['Black Belt', 'progressive mastery framework'], ['Bullyproof', 'nationally recognized programs']],
+    engage: 'Martial arts training, self-defense workshops, and anti-bully programs for schools, families, and teams. This is the room people don\'t expect — and the one that explains all the others.' },
 ];
 
-const FIG_AR = { speaker: 228 / 700, coach: 209 / 700, ai: 222 / 700, trainer: 219 / 700 };
+const FIG_AR = { speaker: 228 / 700, coach: 209 / 700, ai: 222 / 700, trainer: 219 / 700, author: 219 / 700, sensei: 225 / 700 };
 let sel = 0, locked = false, swapTimer = null;
 
 /* build roster cards */
@@ -311,7 +330,7 @@ function select(i, instant) {
   clearTimeout(swapTimer);
   if (instant) { apply(); } else { pv.classList.add('swap'); swapTimer = setTimeout(apply, 180); }
 
-  document.getElementById('r-tag').textContent = `// build 0${i + 1} of 04`;
+  document.getElementById('r-tag').textContent = `// build 0${i + 1} of 0${SUITES.length}`;
   document.getElementById('r-name').textContent = s.name;
   document.getElementById('r-power').textContent = s.power;
   const st = document.getElementById('stats');
@@ -368,10 +387,10 @@ document.getElementById('d-back').addEventListener('click', back);
 addEventListener('keydown', e => {
   if (e.key === 'Escape') { back(); return; }
   if (locked) return;
-  if (e.key === 'ArrowRight') select((sel + 1) % 4);
-  else if (e.key === 'ArrowLeft') select((sel + 3) % 4);
+  if (e.key === 'ArrowRight') select((sel + 1) % SUITES.length);
+  else if (e.key === 'ArrowLeft') select((sel + SUITES.length - 1) % SUITES.length);
   else if (e.key === 'Enter') lockIn();
-  else { const n = parseInt(e.key); if (n >= 1 && n <= 4) select(n - 1); }
+  else { const n = parseInt(e.key); if (n >= 1 && n <= SUITES.length) select(n - 1); }
 });
 
 select(0, true);
