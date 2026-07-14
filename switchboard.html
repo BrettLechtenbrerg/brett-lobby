@@ -43,12 +43,17 @@ html, body { height: 100%; overflow: hidden; background: var(--bg); color: var(-
 #d-back:hover { border-color: var(--accent); color: var(--accent); }
 
 /* ---------- the exchange room ---------- */
-body::before {  /* wood-paneled wall + lamp glow */
+body::before {  /* the exchange hall — generated backdrop, darkened toward center for board legibility */
   content: ''; position: fixed; inset: 0; z-index: 0;
   background:
-    radial-gradient(ellipse 50% 42% at 50% 6%, rgba(212, 175, 55, 0.13), transparent 70%),
-    repeating-linear-gradient(90deg, rgba(0, 0, 0, 0.16) 0 3px, transparent 3px 150px),
-    linear-gradient(180deg, #191309 0%, #0E0A06 55%, #080604 100%);
+    radial-gradient(ellipse 62% 66% at 50% 52%, rgba(7, 6, 4, 0.68) 0%, rgba(7, 6, 4, 0.30) 62%, rgba(7, 6, 4, 0.12) 100%),
+    linear-gradient(180deg, rgba(7, 6, 4, 0.25) 0%, rgba(7, 6, 4, 0.05) 40%, rgba(7, 6, 4, 0.4) 100%),
+    url(assets/exchange-hall.jpg) center / cover no-repeat #0A0806;
+  animation: hallglow 9s ease-in-out infinite;
+}
+@keyframes hallglow {  /* slow breathing of the hall lamps */
+  0%, 100% { filter: brightness(1); }
+  50% { filter: brightness(1.13); }
 }
 body::after {  /* operator's desk in the foreground */
   content: ''; position: fixed; left: 0; right: 0; bottom: 0; height: 15vh; z-index: 3; pointer-events: none;
