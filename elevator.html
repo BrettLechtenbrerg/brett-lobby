@@ -273,14 +273,14 @@ const SUITES = [
     about: 'Hands-on workshops built on the Master\'s Edge — customized to your team, your industry, and the problem you\'re actually solving. Winning Team Culture. The AI Edge. Reclaiming The Clock. The Honest Close. No off-the-shelf content, no recycled decks.',
     stats: [['4 Workshops', 'culture · AI · time · sales'], ['Hands-On', 'build it before you leave'], ['90 min', 'to multi-phase programs']],
     engage: 'Booking half-day and full-day trainings. Tell Brett the problem you\'re solving — he\'ll tell you honestly if he\'s the right fit.' },
-  { key: 'author', name: 'The Author', accent: '#E8C84A', floor: '5',
+  { key: 'author', name: 'The Author', accent: '#E8C84A', floor: '6',
     power: 'Teaches what he\'s tested. Writes what he\'s lived.',
     line: 'Seven books. Five bestsellers.',
     aboutH: 'Ideas that have helped thousands.',
     about: 'Seven books, five bestsellers — including three #1 Amazon bestsellers. Reclaiming The Clock on time and focus; The Anti-Bully Program and The Anti-Cyber Bully Program, nationally recognized and featured in USA Today; The Ultimate Travel Safety Program; Protecting Your Castle; and Bullyproof. The seventh — The Master\'s Edge, the definitive guide to his peak performance methodology — is forthcoming.',
     stats: [['7 Books', '5 bestsellers'], ['#1 Amazon', 'three times'], ['USA Today', 'national coverage']],
     engage: 'Media appearances, podcast interviews, and bulk orders for teams. Start with the free one — How to Build a Rockstar Team. The books are the door; walk through it.' },
-  { key: 'sensei', name: 'The Sensei', accent: '#C0392B', floor: 'B1',
+  { key: 'sensei', name: 'The Sensei', accent: '#C0392B', floor: '5',
     power: 'Every other Brett was built in this room.',
     line: 'Martial arts mastery — 30+ years on the mat.',
     aboutH: 'Where the method was forged.',
@@ -289,8 +289,8 @@ const SUITES = [
     engage: 'Martial arts training, self-defense workshops, and anti-bully programs for schools, families, and teams. This is the room people don\'t expect — and the one that explains all the others.' },
 ];
 
-/* floor strip: B1 at left, lobby, then up */
-const STRIP = ['B1', 'L', '1', '2', '3', '4', '5'];
+/* floor strip: lobby at left, then up */
+const STRIP = ['L', '1', '2', '3', '4', '5', '6'];
 let at = 'L', riding = false, arrivedIdx = -1;
 
 /* indicator */
@@ -306,9 +306,9 @@ function light(f) {
 }
 light('L');
 
-/* panel — floors listed top-down: 5 4 3 2 1 B1 */
+/* panel — floors listed top-down: 6 5 4 3 2 1 */
 const floorsEl = document.getElementById('floors');
-const ORDER = [4, 3, 2, 1, 0, 5]; // SUITES indices: author, trainer, ai, coach, speaker, sensei
+const ORDER = [4, 5, 3, 2, 1, 0]; // SUITES indices: author, sensei, trainer, ai, coach, speaker
 ORDER.forEach(i => {
   const s = SUITES[i];
   const b = document.createElement('button');
