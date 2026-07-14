@@ -19,7 +19,7 @@ html, body { height: 100%; overflow: hidden; background: var(--bg); color: var(-
 #scene {
   position: fixed; transform-origin: 50% 50%;
   background: url(assets/tower.jpg) center / 100% 100% no-repeat;
-  transition: transform 1.4s cubic-bezier(0.45, 0, 0.2, 1);
+  transition: transform 2s cubic-bezier(0.55, 0, 0.2, 1);
   will-change: transform;
 }
 
@@ -76,6 +76,11 @@ body.zoomed .win::after { display: none; }
 /* ---------- flare + dossier ---------- */
 #flare { position: fixed; inset: 0; z-index: 40; background: #070607; opacity: 0; pointer-events: none; transition: opacity 0.5s ease-in; }
 #flare.on { opacity: 1; }
+/* passing through the glass: warm light bloom, not a plain blackout */
+#flare.glass {
+  background: radial-gradient(circle at 50% 45%, #FFF6E2 0%, #F2CE8A 34%, #8A5F28 62%, #120C05 100%);
+  transition: opacity 0.4s ease-in;
+}
 #dossier {
   position: fixed; inset: 0; z-index: 30; display: none; overflow-y: auto;
   background: var(--bg); opacity: 0; transition: opacity 0.7s;
@@ -226,7 +231,7 @@ const WINS = [
   { left: 66.02, top: 25.10, width: 4.56, height: 11.43 },
 ];
 
-const FIG_AR = { speaker: 335 / 700, coach: 326 / 700, ai: 222 / 700, trainer: 323 / 700 };
+const FIG_AR = { speaker: 228 / 700, coach: 209 / 700, ai: 222 / 700, trainer: 219 / 700 };
 const AR = 1536 / 1024;
 const scene = document.getElementById('scene');
 let zoomed = -1;
@@ -276,11 +281,14 @@ function ride(i, el) {
   // zoom the scene toward the window: origin at window center, scale until window ~fills viewport
   const b = el.getBoundingClientRect();
   const cx = b.left + b.width / 2, cy = b.top + b.height / 2;
-  const scale = Math.min(9, (innerHeight * 0.95) / b.height);
+  // overshoot: the window grows PAST the viewport so you visibly pass through it
+  const scale = Math.min(16, (innerHeight * 1.5) / b.height);
   scene.style.transformOrigin = `${cx - scene.offsetLeft}px ${cy - scene.offsetTop}px`;
   scene.style.transform = `translate(${innerWidth / 2 - cx}px, ${innerHeight / 2 - cy}px) scale(${scale})`;
-  setTimeout(() => document.getElementById('flare').classList.add('on'), 900);
-  setTimeout(() => openDossier(i), 1500);
+  const flare = document.getElementById('flare');
+  flare.classList.add('glass');
+  setTimeout(() => flare.classList.add('on'), 1350);   // warm bloom as the glass fills the screen
+  setTimeout(() => openDossier(i), 1900);
 }
 
 function openDossier(i) {
@@ -298,6 +306,7 @@ function openDossier(i) {
   requestAnimationFrame(() => d.classList.add('shown'));
   document.getElementById('d-back').style.display = 'block';
   setTimeout(() => document.getElementById('flare').classList.remove('on'), 250);
+  setTimeout(() => document.getElementById('flare').classList.remove('glass'), 900);
 }
 
 function back() {
